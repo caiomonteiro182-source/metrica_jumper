@@ -104,29 +104,46 @@ if menu == "📝 Lançamento de Aula":
           zip(df_turmas_prof["descricao"], df_turmas_prof["id"])
       )
 
-      with st.form("form_presenca", clear_on_submit=True):
-        turma_desc = st.selectbox("Selecione a Turma", list(opcoes_turmas.keys()))
-        turma_id = opcoes_turmas[turma_desc]
+      turma_desc = st.selectbox("Selecione a Turma", list(opcoes_turmas.keys()))
+      turma_id = opcoes_turmas[turma_desc]
 
-        data_aula = st.date_input("Data da Aula", value=datetime.date.today())
+      data_aula = st.date_input("Data da Aula", value=datetime.date.today())
 
-        col1, col2 = st.columns(2)
-        with col1:
-          total_alunos = st.number_input(
-              "Total de Alunos da Turma", min_value=1, value=10, step=1
-          )
-        with col2:
-          total_presentes = st.number_input(
-              "Quantidade de Presentes",
-              min_value=0,
-              max_value=int(total_alunos),
-              value=8,
-              step=1,
-          )
+      col1, col2 = st.columns(2)
+      with col1:
+        total_alunos = st.number_input(
+            "Total de Alunos da Turma",
+            min_value=1,
+            value=18,
+            step=1,
+            key="input_total_alunos",
+        )
 
-        salvar = st.form_submit_button("💾 Salvar Chamada")
+      with col2:
+        # Trava dinâmica: o max_value do campo de presentes é o total_alunos
+        total_presentes = st.number_input(
+            "Quantidade de Presentes",
+            min_value=0,
+            max_value=int(total_alunos),
+            value=min(10, int(total_alunos)),
+            step=1,
+            key="input_total_presentes",
+        )
 
-        if salvar:
+      # Validação em tempo real
+      if total_presentes > total_alunos:
+        st.error(
+            f"❌ Erro: O número de presentes ({total_presentes}) não pode ser"
+            f" maior do que o total de alunos na turma ({total_alunos})."
+        )
+      else:
+        faltas_calculadas = total_alunos - total_presentes
+        st.info(
+            f"📊 **Resumo:** {total_presentes} Presentes | {faltas_calculadas}"
+            f" Faltas (Total da turma: {total_alunos} alunos)"
+        )
+
+        if st.button("💾 Salvar Chamada", type="primary"):
           CURSOR.execute(
               "INSERT INTO presencas (turma_id, data_aula, qtd_alunos,"
               " qtd_presentes) VALUES (?, ?, ?, ?)",
@@ -145,7 +162,10 @@ if menu == "📝 Lançamento de Aula":
 # ---------------------------------------------------------
 elif menu == "🗑️ Excluir / Corrigir Chamada":
   st.title("🗑️ Gerenciar e Apagar Chamadas")
-  st.caption("Caso tenha lançado algum valor errado, selecione o registro abaixo para excluir.")
+  st.caption(
+      "Caso tenha lançado algum valor errado, selecione o registro abaixo para"
+      " excluir."
+  )
 
   query_ultimos = """
     SELECT 
@@ -172,10 +192,13 @@ elif menu == "🗑️ Excluir / Corrigir Chamada":
     st.markdown("---")
     st.subheader("Apagar Lançamento Incorreto")
 
-    # Mapeia ID e detalhes do lançamento
     opcoes_deletar = {}
     for idx, row in df_chamadas.iterrows():
-      label = f"ID: {row['id']} | Data: {row['Data']} | Prof: {row['Professor']} - {row['Turma']} ({row['Presentes']}/{row['Alunos Esperados']} presentes)"
+      label = (
+          f"ID: {row['id']} | Data: {row['Data']} | Prof: {row['Professor']} -"
+          f" {row['Turma']} ({row['Presentes']}/{row['Alunos Esperados']}"
+          " presentes)"
+      )
       opcoes_deletar[label] = row["id"]
 
     chamada_selecionada = st.selectbox(
