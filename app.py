@@ -1,12 +1,71 @@
 import datetime
+import os
 import sqlite3
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-# Configuração Inicial da Página
+# Configuração Inicial da Página e Favicon
+fav_icon = "logoj.png" if os.path.exists("logoj.png") else "📚"
 st.set_page_config(
-    page_title="Gestão de Presença - JUMPER", page_icon="📚", layout="wide"
+    page_title="Frequência JUMPER",
+    page_icon=fav_icon,
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+# ---------------------------------------------------------
+# ESTILIZAÇÃO CSS PERSONALIZADA (Identidade JUMPER)
+# ---------------------------------------------------------
+st.markdown(
+    """
+    <style>
+    /* Cores Institucionais: Verde JUMPER (#A2D136), Dark (#13171C), Card (#1E232A) */
+    :root {
+        --primary-color: #A2D136;
+        --bg-dark: #13171C;
+        --card-bg: #1E232A;
+    }
+    
+    /* Ajustes Gerais de Fundo e Texto */
+    .stApp {
+        background-color: #13171C;
+        color: #F0F2F5;
+    }
+    
+    /* Estilização da Barra Lateral */
+    section[data-testid="stSidebar"] {
+        background-color: #1A1F26 !important;
+        border-right: 1px solid #2B323B;
+    }
+    
+    /* Customização dos Botões Principais */
+    .stButton > button[kind="primary"] {
+        background-color: #A2D136 !important;
+        color: #13171C !important;
+        font-weight: bold !important;
+        border-radius: 8px !important;
+        border: none !important;
+        padding: 0.6rem 1.2rem !important;
+        transition: all 0.3s ease;
+    }
+    .stButton > button[kind="primary"]:hover {
+        background-color: #B5E249 !important;
+        transform: translateY(-2px);
+        box-shadow: 0px 4px 12px rgba(162, 209, 54, 0.3);
+    }
+    
+    /* Inputs e Formatações de Leitura */
+    div[data-baseweb="input"] input, div[data-baseweb="select"] {
+        border-radius: 8px !important;
+    }
+    
+    /* Ocultar elementos padrão */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
 # ---------------------------------------------------------
@@ -15,7 +74,6 @@ st.set_page_config(
 CONN = sqlite3.connect("jumper_presenca.db", check_same_thread=False)
 CURSOR = CONN.cursor()
 
-# Tabela de Turmas
 CURSOR.execute("""
 CREATE TABLE IF NOT EXISTS turmas (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,7 +84,6 @@ CREATE TABLE IF NOT EXISTS turmas (
 )
 """)
 
-# Tabela de Presenças (Lançamentos Diários)
 CURSOR.execute("""
 CREATE TABLE IF NOT EXISTS presencas (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,7 +96,7 @@ CREATE TABLE IF NOT EXISTS presencas (
 """)
 CONN.commit()
 
-# Carga inicial de turmas (com base na planilha) se o banco estiver vazio
+# Carga inicial de turmas
 CURSOR.execute("SELECT COUNT(*) FROM turmas")
 if CURSOR.fetchone()[0] == 0:
   turmas_iniciais = [
@@ -60,25 +117,33 @@ if CURSOR.fetchone()[0] == 0:
   CONN.commit()
 
 # ---------------------------------------------------------
-# 2. INTERFACE E NAVEGAÇÃO
+# 2. LOGO E NAVEGAÇÃO NA LATERAL
 # ---------------------------------------------------------
-st.sidebar.title("📚 JUMPER - Sistema")
-menu = st.sidebar.radio(
-    "Navegação",
-    [
-        "📝 Lançamento de Aula",
-        "🗑️ Excluir / Corrigir Chamada",
-        "📊 Dashboard da Gestão",
-        "⚙️ Gerenciar Turmas",
-    ],
-)
+with st.sidebar:
+  if os.path.exists("logo.png"):
+    st.image("logo.png", use_container_width=True)
+  else:
+    st.title("JUMPER!")
+
+  st.markdown("<br>", unsafe_allow_html=True)
+  menu = st.radio(
+      "MENU PRINCIPAL",
+      [
+          "📝 Lançamento de Aula",
+          "🗑️ Excluir / Corrigir Chamada",
+          "📊 Dashboard da Gestão",
+          "⚙️ Gerenciar Turmas",
+      ],
+  )
+  st.markdown("---")
+  st.caption("JUMPER Profissões e Idiomas © 2026")
 
 # ---------------------------------------------------------
-# MÓDULO 1: LANÇAMENTO DE PRESENÇA (PROFESSOR)
+# MÓDULO 1: LANÇAMENTO DE PRESENÇA
 # ---------------------------------------------------------
 if menu == "📝 Lançamento de Aula":
   st.title("📝 Lançamento de Presença")
-  st.caption("Selecione o seu nome e preencha a frequência da aula do dia.")
+  st.caption("Selecione o professor e informe os dados da chamada da aula.")
 
   df_profs = pd.read_sql_query(
       "SELECT DISTINCT professor FROM turmas ORDER BY professor", CONN
@@ -124,12 +189,11 @@ if menu == "📝 Lançamento de Aula":
             "Quantidade de Presentes",
             min_value=0,
             max_value=int(total_alunos),
-            value=min(8, int(total_alunos)),
+            value=min(16, int(total_alunos)),
             step=1,
             key="input_total_presentes",
         )
 
-      # Validação e Cor Condicional
       if total_presentes > total_alunos:
         st.error(
             f"❌ Erro: O número de presentes ({total_presentes}) não pode ser"
@@ -140,30 +204,29 @@ if menu == "📝 Lançamento de Aula":
             (total_presentes / total_alunos) * 100 if total_alunos > 0 else 0
         )
 
-        # Regra de Cor: Menor que 80% fica Vermelho, maior/igual a 80% fica Verde
         if porcentagem_presenca < 80.0:
-          cor_texto = "#FF2B2B"  # Vermelho
-          bg_box = "rgba(255, 43, 43, 0.1)"
-          border_color = "#FF2B2B"
+          cor_texto = "#FF4B4B"
+          bg_box = "rgba(255, 75, 75, 0.12)"
+          border_color = "#FF4B4B"
         else:
-          cor_texto = "#00C853"  # Verde
-          bg_box = "rgba(0, 200, 83, 0.1)"
-          border_color = "#00C853"
+          cor_texto = "#A2D136"
+          bg_box = "rgba(162, 209, 54, 0.12)"
+          border_color = "#A2D136"
 
-        # Exibição estilizada em HTML/CSS no Streamlit
         st.markdown(
             f"""
             <div style="
                 background-color: {bg_box};
                 border-left: 5px solid {border_color};
-                padding: 12px 16px;
-                border-radius: 6px;
-                margin-bottom: 16px;
+                padding: 14px 18px;
+                border-radius: 8px;
+                margin-top: 10px;
+                margin-bottom: 20px;
             ">
-                <span style="font-size: 16px; font-weight: bold; color: {cor_texto};">
+                <span style="font-size: 17px; font-weight: bold; color: {cor_texto};">
                     📊 Resumo: Frequência: {porcentagem_presenca:.1f}%
                 </span>
-                <span style="font-size: 15px; color: #CCCCCC; margin-left: 8px;">
+                <span style="font-size: 15px; color: #D0D4DC; margin-left: 8px;">
                     (Total da turma: {total_alunos} alunos)
                 </span>
             </div>
@@ -190,10 +253,7 @@ if menu == "📝 Lançamento de Aula":
 # ---------------------------------------------------------
 elif menu == "🗑️ Excluir / Corrigir Chamada":
   st.title("🗑️ Gerenciar e Apagar Chamadas")
-  st.caption(
-      "Caso tenha lançado algum valor errado, selecione o registro abaixo para"
-      " excluir."
-  )
+  st.caption("Selecione um registro efetuado incorretamente para remoção.")
 
   query_ultimos = """
     SELECT 
@@ -243,7 +303,7 @@ elif menu == "🗑️ Excluir / Corrigir Chamada":
       st.rerun()
 
 # ---------------------------------------------------------
-# MÓDULO 3: DASHBOARD (GESTÃO / COORDENAÇÃO)
+# MÓDULO 3: DASHBOARD DA GESTÃO
 # ---------------------------------------------------------
 elif menu == "📊 Dashboard da Gestão":
   st.title("📊 Painel de Controle de Frequência")
@@ -310,18 +370,27 @@ elif menu == "📊 Dashboard da Gestão":
     col_g1, col_g2 = st.columns([2, 1])
 
     with col_g1:
+      # Gráfico customizado com a cor institucional verde JUMPER
       fig = px.bar(
           df_prof,
           x="professor",
           y="Frequencia_%",
           text="Frequencia_%",
           title=f"Frequência por Professor - {mes_selecionado}",
-          color="Frequencia_%",
-          color_continuous_scale="Greens",
+          color_discrete_sequence=["#A2D136"],
           labels={"Frequencia_%": "Presença (%)", "professor": "Professor"},
       )
-      fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
-      fig.update_layout(yaxis_range=[0, 105])
+      fig.update_traces(
+          texttemplate="%{text:.1f}%",
+          textposition="outside",
+          marker_color="#A2D136",
+      )
+      fig.update_layout(
+          plot_bgcolor="rgba(0,0,0,0)",
+          paper_bgcolor="rgba(0,0,0,0)",
+          font_color="#F0F2F5",
+          yaxis_range=[0, 105],
+      )
       st.plotly_chart(fig, use_container_width=True)
 
     with col_g2:
@@ -373,7 +442,7 @@ elif menu == "⚙️ Gerenciar Turmas":
       )
       horario = st.text_input("Horário (Ex: 08:30 - 10:30)")
 
-      btn_cadastrar = st.form_submit_button("Cadastrar Turma")
+      btn_cadastrar = st.form_submit_button("Cadastrar Turma", type="primary")
 
       if btn_cadastrar:
         if novo_prof and nome_turma and horario:
