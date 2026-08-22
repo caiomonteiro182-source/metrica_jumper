@@ -48,7 +48,7 @@ st.markdown(
         margin-bottom: 20px;
     }
     
-    /* Destaque das Caixas de Seleção e Inputs (Alta Visibilidade para os Professores) */
+    /* Destaque das Caixas de Seleção e Inputs */
     div[data-baseweb="select"] > div, div[data-baseweb="input"] input {
         background-color: #1E2630 !important;
         border: 2px solid #334155 !important;
@@ -90,7 +90,7 @@ st.markdown(
         box-shadow: 0 6px 20px rgba(162, 209, 54, 0.45);
     }
     
-    /* Cards de Métricas (st.metric) no Dashboard */
+    /* Cards de Métricas no Dashboard */
     [data-testid="stMetric"] {
         background-color: #161C23;
         border: 1px solid #232D38;
@@ -103,7 +103,7 @@ st.markdown(
         font-weight: 800 !important;
     }
 
-    /* Ocultar elementos padrão */
+    /* Ocultar elementos padrão do Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     </style>
@@ -185,24 +185,6 @@ with st.sidebar:
   st.caption("JUMPER Profissões e Idiomas © 2026")
 
 # ---------------------------------------------------------
-# TOPO COM A LOGO "J!" E TÍTULO
-# ---------------------------------------------------------
-col_header1, col_header2 = st.columns([5, 1])
-with col_header1:
-  st.markdown(
-      """
-        <div style="margin-bottom: 15px;">
-            <h1 style="color: #FFFFFF; font-weight: 800; font-size: 2.2rem; margin: 0;">Frequência de Turmas</h1>
-            <p style="color: #94A3B8; font-size: 1.05rem; margin-top: 4px;">Sistema de lançamento diário de presença e métricas pedagógicas</p>
-        </div>
-        """,
-      unsafe_allow_html=True,
-  )
-with col_header2:
-  if os.path.exists("logoj.png"):
-    st.image("logoj.png", width=70)
-
-# ---------------------------------------------------------
 # MÓDULO 1: LANÇAMENTO DE PRESENÇA (PROFESSOR)
 # ---------------------------------------------------------
 if menu == "📝 Lançamento de Aula":
@@ -216,10 +198,7 @@ if menu == "📝 Lançamento de Aula":
   if not professores:
     st.warning("Nenhum professor cadastrado no banco de dados.")
   else:
-    # Seleção visível do Professor
-    prof_selecionado = st.selectbox(
-        "👤 Selecione o Professor", professores, index=0
-    )
+    prof_selecionado = st.selectbox("👤 Selecione o Professor", professores)
 
     df_turmas_prof = pd.read_sql_query(
         "SELECT id, nome_turma || ' (' || dia_semana || ' ' || horario || ')'"
@@ -262,7 +241,6 @@ if menu == "📝 Lançamento de Aula":
             key="input_total_presentes",
         )
 
-      # Validação e Cálculo do Percentual
       if total_presentes > total_alunos:
         st.error(
             f"❌ Erro: O número de presentes ({total_presentes}) não pode ser"
@@ -273,7 +251,6 @@ if menu == "📝 Lançamento de Aula":
             (total_presentes / total_alunos) * 100 if total_alunos > 0 else 0
         )
 
-        # Regra de Cor: Vermelho para <80%, Verde (#A2D136) para >=80%
         if porcentagem_presenca < 80.0:
           cor_texto = "#FF4B4B"
           bg_box = "rgba(255, 75, 75, 0.15)"
