@@ -5,8 +5,8 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-# Configuração da Página e Favicon
-fav_icon = "logo.png" if os.path.exists("logo.png") else "📚"
+# Configuração da Página e Favicon da Guia (logoj.png)
+fav_icon = "logoj.png" if os.path.exists("logoj.png") else "📚"
 st.set_page_config(
     page_title="Gestão de Presença | JUMPER",
     page_icon=fav_icon,
@@ -15,7 +15,7 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# ESTILIZAÇÃO CSS AVANÇADA (DEGRADÊ TEMÁTICO + MOBILE-FRIENDLY)
+# ESTILIZAÇÃO CSS PERSONALIZADA (DEGRADÊ + NAVEGAÇÃO AGRUPADA)
 # ---------------------------------------------------------
 st.markdown(
     """
@@ -26,58 +26,47 @@ st.markdown(
         font-family: 'Inter', sans-serif;
     }
     
-    /* Esconder completamente a barra lateral do Streamlit */
+    /* Esconder completamente a barra lateral */
     section[data-testid="stSidebar"] {
         display: none !important;
     }
     
-    /* Fundo com Degradê inspirado nas cores da JUMPER */
+    /* Fundo em Degradê Temático JUMPER */
     .stApp {
         background: linear-gradient(135deg, #090D12 0%, #111822 50%, #1A2433 100%);
         color: #F8FAFC;
     }
     
-    /* Centralização do Logo Principal */
-    .logo-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 10px 0 20px 0;
+    /* Centralização dos Segmentos do Menu */
+    div[data-testid="stSegmentedControl"] {
+        display: flex !important;
+        justify-content: center !important;
+        margin: 0 auto 20px auto !important;
+        max-width: 550px !important;
+        background: rgba(22, 30, 41, 0.8) !important;
+        padding: 4px !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(162, 209, 54, 0.2) !important;
     }
     
-    /* Container dos Botões de Navegação Juntos e Centralizados */
-    .nav-buttons-container {
-        max-width: 600px;
-        margin: 0 auto 25px auto;
-        padding: 6px;
-        background: rgba(22, 30, 41, 0.7);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 14px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    }
-    
-    /* Estilização dos Botões de Aba */
-    div[data-testid="stHorizontalBlock"] button {
-        background: rgba(30, 41, 56, 0.6) !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        color: #CBD5E1 !important;
+    /* Botões Unificados do Segmented Control */
+    div[data-testid="stSegmentedControl"] button {
+        border-radius: 8px !important;
         font-weight: 700 !important;
-        font-size: 13px !important;
-        border-radius: 10px !important;
-        padding: 0.55rem 0.4rem !important;
-        width: 100% !important;
-        transition: all 0.25s ease-in-out;
+        font-size: 14px !important;
+        color: #CBD5E1 !important;
+        border: none !important;
+        transition: all 0.2s ease-in-out !important;
     }
     
-    div[data-testid="stHorizontalBlock"] button:hover {
-        background: rgba(162, 209, 54, 0.15) !important;
-        border-color: #A2D136 !important;
-        color: #A2D136 !important;
-        transform: translateY(-1px);
+    div[data-testid="stSegmentedControl"] button[aria-selected="true"] {
+        background-color: #A2D136 !important;
+        color: #0B0F14 !important;
+        font-weight: 800 !important;
+        box-shadow: 0 2px 10px rgba(162, 209, 54, 0.3) !important;
     }
-    
-    /* Destaque para Caixas de Seleção e Inputs */
+
+    /* Destaque das Caixas de Seleção e Inputs */
     div[data-baseweb="select"] > div, div[data-baseweb="input"] input {
         background-color: #151D28 !important;
         border: 1.5px solid #2A3648 !important;
@@ -91,7 +80,6 @@ st.markdown(
         border-color: #A2D136 !important;
     }
     
-    /* Rótulos com Destaque Verde JUMPER */
     label {
         color: #A2D136 !important;
         font-weight: 700 !important;
@@ -213,7 +201,7 @@ if CURSOR.fetchone()[0] != 25:
   resetar_turmas_base()
 
 # ---------------------------------------------------------
-# CABEÇALHO COM LOGO CENTRALIZADO
+# CABEÇALHO CENTRALIZADO
 # ---------------------------------------------------------
 col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
 with col_l2:
@@ -229,39 +217,25 @@ with col_l2:
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# NAVEGAÇÃO COMPACTA POR BOTÕES CENTRALIZADOS
+# NAVEGAÇÃO AGRUPADA (RADIO / SEGMENTED CONTROL)
 # ---------------------------------------------------------
-if "aba_ativa" not in st.session_state:
-  st.session_state.aba_ativa = "📝 Lançamento"
+opcoes_menu = [
+    "📝 Lançamento",
+    "🗑️ Corrigir",
+    "📊 Dashboard",
+    "⚙️ Gerenciar",
+]
 
-col_m1, col_m2, col_m3, col_m4 = st.columns([1, 1, 1, 1])
-
-with col_m1:
-  if st.button("📝 Lançamento"):
-    st.session_state.aba_ativa = "📝 Lançamento"
-    st.rerun()
-
-with col_m2:
-  if st.button("🗑️ Corrigir"):
-    st.session_state.aba_ativa = "🗑️ Corrigir"
-    st.rerun()
-
-with col_m3:
-  if st.button("📊 Dashboard"):
-    st.session_state.aba_ativa = "📊 Dashboard"
-    st.rerun()
-
-with col_m4:
-  if st.button("⚙️ Gerenciar"):
-    st.session_state.aba_ativa = "⚙️ Gerenciar"
-    st.rerun()
+aba_ativa = st.segmented_control(
+    "", opcoes_menu, default="📝 Lançamento", label_visibility="collapsed"
+)
 
 st.markdown("---")
 
 # ---------------------------------------------------------
 # MÓDULO 1: LANÇAMENTO DE PRESENÇA (PROFESSOR)
 # ---------------------------------------------------------
-if st.session_state.aba_ativa == "📝 Lançamento":
+if aba_ativa == "📝 Lançamento":
   df_profs = pd.read_sql_query(
       "SELECT DISTINCT professor FROM turmas ORDER BY professor", CONN
   )
@@ -377,7 +351,7 @@ if st.session_state.aba_ativa == "📝 Lançamento":
 # ---------------------------------------------------------
 # MÓDULO 2: EXCLUIR / CORRIGIR CHAMADA
 # ---------------------------------------------------------
-elif st.session_state.aba_ativa == "🗑️ Corrigir":
+elif aba_ativa == "🗑️ Corrigir":
   st.subheader("🗑️ Gerenciar e Apagar Chamadas")
   st.caption("Selecione um registro efetuado incorretamente para remoção.")
 
@@ -428,7 +402,7 @@ elif st.session_state.aba_ativa == "🗑️ Corrigir":
 # ---------------------------------------------------------
 # MÓDULO 3: DASHBOARD DA GESTÃO
 # ---------------------------------------------------------
-elif st.session_state.aba_ativa == "📊 Dashboard":
+elif aba_ativa == "📊 Dashboard":
   query = """
     SELECT 
         p.id,
@@ -542,7 +516,7 @@ elif st.session_state.aba_ativa == "📊 Dashboard":
 # ---------------------------------------------------------
 # MÓDULO 4: GERENCIAR TURMAS + MANUTENÇÃO
 # ---------------------------------------------------------
-elif st.session_state.aba_ativa == "⚙️ Gerenciar":
+elif aba_ativa == "⚙️ Gerenciar":
   st.subheader("⚙️ Cadastro e Gestão de Turmas")
 
   with st.expander("➕ Cadastrar Nova Turma"):
