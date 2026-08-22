@@ -104,7 +104,7 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# 1. BANCO DE DADOS (Estrutura Inicial)
+# 1. BANCO DE DADOS (Criação e Limpeza Definitiva)
 # ---------------------------------------------------------
 CONN = sqlite3.connect("jumper_presenca.db", check_same_thread=False)
 CURSOR = CONN.cursor()
@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS presencas (
 """)
 CONN.commit()
 
-# Lista Mestra de Turmas Únicas (Base Excel)
+# Lista Única Oficial de Turmas (Extraídas do Excel Base)
 TURMAS_BASE_EXCEL = [
     ("ALINE", "CABELEIREIRO", "Quinta-feira", "19:00 - 21:00"),
     ("CAIO", "INFORMÁTICA - T1", "Sábado", "08:30 às 10:30"),
@@ -160,15 +160,20 @@ TURMAS_BASE_EXCEL = [
     ("VINICIUS", "GESTÃO - T2", "Quinta-feira", "09:00"),
 ]
 
-# Inicialização limpa caso o banco esteja vazio
-CURSOR.execute("SELECT COUNT(*) FROM turmas")
-if CURSOR.fetchone()[0] == 0:
+# Função para resetar e forçar a deduplicação
+def resetar_turmas_base():
+  CURSOR.execute("DELETE FROM turmas")
   CURSOR.executemany(
-      "INSERT INTO turmas (professor, nome_turma, dia_semana, horario) VALUES"
-      " (?, ?, ?, ?)",
+      "INSERT INTO turmas (professor, nome_turma, dia_semana, horario)"
+      " VALUES (?, ?, ?, ?)",
       TURMAS_BASE_EXCEL,
   )
   CONN.commit()
+
+# Limpa duplicados antigos se existirem mais de 25 turmas cadastradas
+CURSOR.execute("SELECT COUNT(*) FROM turmas")
+if CURSOR.fetchone()[0] != 25:
+  resetar_turmas_base()
 
 # ---------------------------------------------------------
 # 2. BARRA LATERAL (MENU)
@@ -225,11 +230,25 @@ if menu == "📝 Lançamento de Aula":
   if not professores:
     st.warning("Nenhum professor cadastrado no banco de dados.")
   else:
-    prof_selecionado = st.selectbox("👤 Selecione o Professor", professores)
+    col_prof, col_reset = st.columns([4, 1])
+    with col_prof:
+      prof_selecionado = st.selectbox("👤 Selecione o Professor", professores)
+    with col_reset:
+      st.markdown("<br>", unsafe_allow_html=True)
+      if st.button("🔄 Corrigir Duplicados"):
+        resetar_turmas_base()
+        st.success("Lista limpa!")
+        st.rerun()
 
+    # Query Deduplicada por Nome da Turma + Horário
     df_turmas_prof = pd.read_sql_query(
-        "SELECT id, nome_turma || ' - ' || dia_semana || ' (' || horario || ')'"
-        " AS descricao FROM turmas WHERE professor = ?",
+        """
+        SELECT MIN(id) as id, nome_turma || ' - ' || dia_semana || ' (' || horario || ')' AS descricao 
+        FROM turmas 
+        WHERE professor = ?
+        GROUP BY nome_turma, dia_semana, horario
+        ORDER BY id
+        """,
         CONN,
         params=(prof_selecionado,),
     )
@@ -246,7 +265,10 @@ if menu == "📝 Lançamento de Aula":
       )
       turma_id = opcoes_turmas[turma_desc]
 
-      data_aula = st.date_input("📅 Data da Aula", value=datetime.date.today())
+      # Data no formato brasileiro (DD/MM/YYYY)
+      data_aula = st.date_input(
+          "📅 Data da Aula", value=datetime.date.today(), format="DD/MM/YYYY"
+      )
 
       col1, col2 = st.columns(2)
       with col1:
@@ -332,7 +354,7 @@ elif menu == "🗑️ Excluir / Corrigir Chamada":
   query_ultimos = """
     SELECT 
         p.id,
-        p.data_aula as Data,
+        strftime('%d/%m/%Y', p.data_aula) as Data,
         t.professor as Professor,
         t.nome_turma as Turma,
         p.qtd_alunos as "Alunos Esperados",
@@ -382,6 +404,7 @@ elif menu == "📊 Dashboard da Gestão":
         p.id,
         t.professor,
         t.nome_turma,
+        strftime('%d/%m/%Y', p.data_aula) as data_aula_br,
         p.data_aula,
         p.qtd_alunos,
         p.qtd_presentes,
@@ -477,19 +500,19 @@ elif menu == "📊 Dashboard da Gestão":
     st.dataframe(
         df_mes[[
             "id",
-            "data_aula",
+            "data_aula_br",
             "professor",
             "nome_turma",
             "qtd_alunos",
             "qtd_presentes",
             "qtd_faltas",
-        ]],
+        ]].rename(columns={"data_aula_br": "Data da Aula"}),
         use_container_width=True,
         hide_index=True,
     )
 
 # ---------------------------------------------------------
-# MÓDULO 4: GERENCIAR TURMAS + FERRAMENTAS DE MANUTENÇÃO
+# MÓDULO 4: GERENCIAR TURMAS + MANUTENÇÃO
 # ---------------------------------------------------------
 elif menu == "⚙️ Gerenciar Turmas":
   st.subheader("⚙️ Cadastro e Gestão de Turmas")
@@ -535,43 +558,10 @@ elif menu == "⚙️ Gerenciar Turmas":
   )
   st.dataframe(df_todas_turmas, use_container_width=True, hide_index=True)
 
-  # Ferramentas de Manutenção do Banco de Dados
   st.markdown("---")
   with st.expander("🛠️ Ferramentas de Manutenção do Banco de Dados"):
-    st.caption(
-        "Utilize as opções abaixo se perceber qualquer divergência de turmas"
-        " ou se desejar reiniciar o banco de dados."
-    )
-
-    col_btn1, col_btn2 = st.columns(2)
-
-    with col_btn1:
-      if st.button("🔄 Restaurar Apenas Turmas Padrão"):
-        CURSOR.execute("DELETE FROM turmas")
-        CURSOR.executemany(
-            "INSERT INTO turmas (professor, nome_turma, dia_semana, horario)"
-            " VALUES (?, ?, ?, ?)",
-            TURMAS_BASE_EXCEL,
-        )
-        CONN.commit()
-        st.success(
-            "✅ Lista de turmas restaurada com sucesso! (O histórico de"
-            " chamadas foi mantido)."
-        )
-        st.rerun()
-
-    with col_btn2:
-      if st.button("⚠️ Resetar Banco Completo (Turmas + Chamadas)"):
-        CURSOR.execute("DELETE FROM presencas")
-        CURSOR.execute("DELETE FROM turmas")
-        CURSOR.executemany(
-            "INSERT INTO turmas (professor, nome_turma, dia_semana, horario)"
-            " VALUES (?, ?, ?, ?)",
-            TURMAS_BASE_EXCEL,
-        )
-        CONN.commit()
-        st.success(
-            "✅ Banco de dados zerado e restaurado com sucesso para a versão"
-            " inicial!"
-        )
-        st.rerun()
+    st.caption("Utilize para remover turmas duplicadas da lista.")
+    if st.button("🔄 Resetar e Limpar Tabela de Turmas"):
+      resetar_turmas_base()
+      st.success("Tabela restaurada sem duplicados!")
+      st.rerun()
