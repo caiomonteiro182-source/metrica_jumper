@@ -185,11 +185,27 @@ with st.sidebar:
   st.caption("JUMPER Profissões e Idiomas © 2026")
 
 # ---------------------------------------------------------
+# CABEÇALHO COMPACTO COM LOGO "J!" (SEM CAIXAS VAZIAS)
+# ---------------------------------------------------------
+col_header1, col_header2 = st.columns([5, 1])
+with col_header1:
+  st.markdown(
+      """
+      <div style="margin-bottom: 20px;">
+          <h1 style="color: #FFFFFF; font-weight: 800; font-size: 2.2rem; margin: 0;">Frequência de Turmas</h1>
+          <p style="color: #94A3B8; font-size: 1rem; margin-top: 4px;">Sistema de lançamento diário de presença e métricas pedagógicas</p>
+      </div>
+      """,
+      unsafe_allow_html=True,
+  )
+with col_header2:
+  if os.path.exists("logoj.png"):
+    st.image("logoj.png", width=75)
+
+# ---------------------------------------------------------
 # MÓDULO 1: LANÇAMENTO DE PRESENÇA (PROFESSOR)
 # ---------------------------------------------------------
 if menu == "📝 Lançamento de Aula":
-  st.markdown('<div class="jumper-card">', unsafe_allow_html=True)
-
   df_profs = pd.read_sql_query(
       "SELECT DISTINCT professor FROM turmas ORDER BY professor", CONN
   )
@@ -294,13 +310,11 @@ if menu == "📝 Lançamento de Aula":
           )
           CONN.commit()
           st.success("✅ Chamada salva com sucesso!")
-  st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # MÓDULO 2: EXCLUIR / CORRIGIR CHAMADA
 # ---------------------------------------------------------
 elif menu == "🗑️ Excluir / Corrigir Chamada":
-  st.markdown('<div class="jumper-card">', unsafe_allow_html=True)
   st.subheader("🗑️ Gerenciar e Apagar Chamadas")
   st.caption("Selecione um registro efetuado incorretamente para remoção.")
 
@@ -347,7 +361,6 @@ elif menu == "🗑️ Excluir / Corrigir Chamada":
       CONN.commit()
       st.success("✅ Chamada apagada com sucesso!")
       st.rerun()
-  st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # MÓDULO 3: DASHBOARD DA GESTÃO
@@ -415,7 +428,6 @@ elif menu == "📊 Dashboard da Gestão":
     col_g1, col_g2 = st.columns([2, 1])
 
     with col_g1:
-      st.markdown('<div class="jumper-card">', unsafe_allow_html=True)
       fig = px.bar(
           df_prof,
           x="professor",
@@ -438,10 +450,8 @@ elif menu == "📊 Dashboard da Gestão":
           margin=dict(l=10, r=10, t=40, b=10),
       )
       st.plotly_chart(fig, use_container_width=True)
-      st.markdown("</div>", unsafe_allow_html=True)
 
     with col_g2:
-      st.markdown('<div class="jumper-card">', unsafe_allow_html=True)
       st.subheader("Resumo por Professor")
       st.dataframe(
           df_prof[["professor", "aulas", "Frequencia_%"]].rename(
@@ -450,9 +460,8 @@ elif menu == "📊 Dashboard da Gestão":
           use_container_width=True,
           hide_index=True,
       )
-      st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown('<div class="jumper-card">', unsafe_allow_html=True)
+    st.markdown("---")
     st.subheader("📋 Registros Detalhados do Mês")
     st.dataframe(
         df_mes[[
@@ -467,13 +476,11 @@ elif menu == "📊 Dashboard da Gestão":
         use_container_width=True,
         hide_index=True,
     )
-    st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # MÓDULO 4: GERENCIAR TURMAS
 # ---------------------------------------------------------
 elif menu == "⚙️ Gerenciar Turmas":
-  st.markdown('<div class="jumper-card">', unsafe_allow_html=True)
   st.subheader("⚙️ Cadastro e Gestão de Turmas")
 
   with st.expander("➕ Cadastrar Nova Turma"):
@@ -516,4 +523,3 @@ elif menu == "⚙️ Gerenciar Turmas":
       CONN,
   )
   st.dataframe(df_todas_turmas, use_container_width=True, hide_index=True)
-  st.markdown("</div>", unsafe_allow_html=True)
