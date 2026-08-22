@@ -129,7 +129,7 @@ if menu == "📝 Lançamento de Aula":
             key="input_total_presentes",
         )
 
-      # Validação e Exibição Apenas da Porcentagem de Frequência
+      # Validação e Cor Condicional
       if total_presentes > total_alunos:
         st.error(
             f"❌ Erro: O número de presentes ({total_presentes}) não pode ser"
@@ -140,9 +140,35 @@ if menu == "📝 Lançamento de Aula":
             (total_presentes / total_alunos) * 100 if total_alunos > 0 else 0
         )
 
-        st.info(
-            f"📊 **Resumo:** **Frequência: {porcentagem_presenca:.1f}%** (Total"
-            f" da turma: {total_alunos} alunos)"
+        # Regra de Cor: Menor que 80% fica Vermelho, maior/igual a 80% fica Verde
+        if porcentagem_presenca < 80.0:
+          cor_texto = "#FF2B2B"  # Vermelho
+          bg_box = "rgba(255, 43, 43, 0.1)"
+          border_color = "#FF2B2B"
+        else:
+          cor_texto = "#00C853"  # Verde
+          bg_box = "rgba(0, 200, 83, 0.1)"
+          border_color = "#00C853"
+
+        # Exibição estilizada em HTML/CSS no Streamlit
+        st.markdown(
+            f"""
+            <div style="
+                background-color: {bg_box};
+                border-left: 5px solid {border_color};
+                padding: 12px 16px;
+                border-radius: 6px;
+                margin-bottom: 16px;
+            ">
+                <span style="font-size: 16px; font-weight: bold; color: {cor_texto};">
+                    📊 Resumo: Frequência: {porcentagem_presenca:.1f}%
+                </span>
+                <span style="font-size: 15px; color: #CCCCCC; margin-left: 8px;">
+                    (Total da turma: {total_alunos} alunos)
+                </span>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
 
         if st.button("💾 Salvar Chamada", type="primary"):
