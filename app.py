@@ -42,22 +42,22 @@ CONN.commit()
 # Carga inicial de turmas (com base na planilha) se o banco estiver vazio
 CURSOR.execute("SELECT COUNT(*) FROM turmas")
 if CURSOR.fetchone()[0] == 0:
-    turmas_iniciais = [
-        ("ALINE", "CABELEIREIRO", "Quinta-feira", "19:00 - 21:00"),
-        ("CAIO", "INFORMÁTICA - T1", "Sábado", "08:30 - 10:30"),
-        ("CAIO", "INFORMÁTICA - T2", "Sábado", "10:30 - 12:30"),
-        ("CAIO", "INFORMÁTICA - T3", "Terça-feira", "19:00 - 21:00"),
-        ("HELLEN", "INGLÊS", "Quarta-feira", "14:00 - 16:00"),
-        ("JULIA", "ADMINISTRAÇÃO", "Sábado", "08:30 - 10:30"),
-        ("JURANDIR", "ROBÓTICA", "Sábado", "13:30 - 15:30"),
-        ("KELLY", "DESIGN", "Sexta-feira", "19:00 - 21:00"),
-    ]
-    CURSOR.executemany(
-        "INSERT INTO turmas (professor, nome_turma, dia_semana, horario)"
-        " VALUES (?, ?, ?, ?)",
-        turmas_iniciais,
-    )
-    CONN.commit()
+  turmas_iniciais = [
+      ("ALINE", "CABELEIREIRO", "Quinta-feira", "19:00 - 21:00"),
+      ("CAIO", "INFORMÁTICA - T1", "Sábado", "08:30 - 10:30"),
+      ("CAIO", "INFORMÁTICA - T2", "Sábado", "10:30 - 12:30"),
+      ("CAIO", "INFORMÁTICA - T3", "Terça-feira", "19:00 - 21:00"),
+      ("HELLEN", "INGLÊS", "Quarta-feira", "14:00 - 16:00"),
+      ("JULIA", "ADMINISTRAÇÃO", "Sábado", "08:30 - 10:30"),
+      ("JURANDIR", "ROBÓTICA", "Sábado", "13:30 - 15:30"),
+      ("KELLY", "DESIGN", "Sexta-feira", "19:00 - 21:00"),
+  ]
+  CURSOR.executemany(
+      "INSERT INTO turmas (professor, nome_turma, dia_semana, horario) VALUES"
+      " (?, ?, ?, ?)",
+      turmas_iniciais,
+  )
+  CONN.commit()
 
 # ---------------------------------------------------------
 # 2. INTERFACE E NAVEGAÇÃO
@@ -65,7 +65,12 @@ if CURSOR.fetchone()[0] == 0:
 st.sidebar.title("📚 JUMPER - Sistema")
 menu = st.sidebar.radio(
     "Navegação",
-    ["📝 Lançamento de Aula", "📊 Dashboard da Gestão", "⚙️ Gerenciar Turmas"],
+    [
+        "📝 Lançamento de Aula",
+        "🗑️ Excluir / Corrigir Chamada",
+        "📊 Dashboard da Gestão",
+        "⚙️ Gerenciar Turmas",
+    ],
 )
 
 # ---------------------------------------------------------
@@ -75,7 +80,6 @@ if menu == "📝 Lançamento de Aula":
   st.title("📝 Lançamento de Presença")
   st.caption("Selecione o seu nome e preencha a frequência da aula do dia.")
 
-  # Busca lista de professores cadastrados
   df_profs = pd.read_sql_query(
       "SELECT DISTINCT professor FROM turmas ORDER BY professor", CONN
   )
@@ -86,7 +90,6 @@ if menu == "📝 Lançamento de Aula":
   else:
     prof_selecionado = st.selectbox("Selecione o Professor", professores)
 
-    # Busca turmas do professor selecionado
     df_turmas_prof = pd.read_sql_query(
         "SELECT id, nome_turma || ' (' || dia_semana || ' ' || horario || ')'"
         " AS descricao FROM turmas WHERE professor = ?",
@@ -105,7 +108,6 @@ if menu == "📝 Lançamento de Aula":
         turma_desc = st.selectbox("Selecione a Turma", list(opcoes_turmas.keys()))
         turma_id = opcoes_turmas[turma_desc]
 
-        # Data atual pré-selecionada automaticamente
         data_aula = st.date_input("Data da Aula", value=datetime.date.today())
 
         col1, col2 = st.columns(2)
@@ -139,12 +141,62 @@ if menu == "📝 Lançamento de Aula":
           st.success("✅ Chamada salva com sucesso!")
 
 # ---------------------------------------------------------
-# MÓDULO 2: DASHBOARD (GESTÃO / COORDENAÇÃO)
+# MÓDULO 2: EXCLUIR / CORRIGIR CHAMADA
+# ---------------------------------------------------------
+elif menu == "🗑️ Excluir / Corrigir Chamada":
+  st.title("🗑️ Gerenciar e Apagar Chamadas")
+  st.caption("Caso tenha lançado algum valor errado, selecione o registro abaixo para excluir.")
+
+  query_ultimos = """
+    SELECT 
+        p.id,
+        p.data_aula as Data,
+        t.professor as Professor,
+        t.nome_turma as Turma,
+        p.qtd_alunos as "Alunos Esperados",
+        p.qtd_presentes as Presentes,
+        (p.qtd_alunos - p.qtd_presentes) as Faltas
+    FROM presencas p
+    JOIN turmas t ON p.turma_id = t.id
+    ORDER BY p.id DESC
+    LIMIT 50
+    """
+  df_chamadas = pd.read_sql_query(query_ultimos, CONN)
+
+  if df_chamadas.empty:
+    st.info("Nenhuma chamada registrada no histórico para exclusão.")
+  else:
+    st.subheader("Últimas Chamadas Registradas")
+    st.dataframe(df_chamadas, use_container_width=True, hide_index=True)
+
+    st.markdown("---")
+    st.subheader("Apagar Lançamento Incorreto")
+
+    # Mapeia ID e detalhes do lançamento
+    opcoes_deletar = {}
+    for idx, row in df_chamadas.iterrows():
+      label = f"ID: {row['id']} | Data: {row['Data']} | Prof: {row['Professor']} - {row['Turma']} ({row['Presentes']}/{row['Alunos Esperados']} presentes)"
+      opcoes_deletar[label] = row["id"]
+
+    chamada_selecionada = st.selectbox(
+        "Selecione a chamada que deseja APAGAR:", list(opcoes_deletar.keys())
+    )
+    id_para_deletar = opcoes_deletar[chamada_selecionada]
+
+    btn_deletar = st.button("❌ Confirmar Exclusão da Chamada", type="primary")
+
+    if btn_deletar:
+      CURSOR.execute("DELETE FROM presencas WHERE id = ?", (id_para_deletar,))
+      CONN.commit()
+      st.success("✅ Chamada apagada com sucesso!")
+      st.rerun()
+
+# ---------------------------------------------------------
+# MÓDULO 3: DASHBOARD (GESTÃO / COORDENAÇÃO)
 # ---------------------------------------------------------
 elif menu == "📊 Dashboard da Gestão":
   st.title("📊 Painel de Controle de Frequência")
 
-  # Busca histórico de lançamentos
   query = """
     SELECT 
         p.id,
@@ -164,16 +216,13 @@ elif menu == "📊 Dashboard da Gestão":
   if df_dados.empty:
     st.info("Nenhum lançamento registrado até o momento.")
   else:
-    # Filtro Dinâmico de Mês (Automático)
     meses_disponiveis = sorted(df_dados["mes_ano"].unique(), reverse=True)
     mes_selecionado = st.sidebar.selectbox(
         "Filtrar por Mês/Ano", meses_disponiveis
     )
 
-    # Filtrar dados do mês
     df_mes = df_dados[df_dados["mes_ano"] == mes_selecionado].copy()
 
-    # Cálculo dos KPIs Globais
     total_aulas = len(df_mes)
     total_alunos_acum = df_mes["qtd_alunos"].sum()
     total_presentes_acum = df_mes["qtd_presentes"].sum()
@@ -185,16 +234,14 @@ elif menu == "📊 Dashboard da Gestão":
         else 0
     )
 
-    # Exibição de Métricas no Topo
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Frequência Médian Unidade", f"{freq_media_geral:.1f}%")
+    c1.metric("Frequência Média Unidade", f"{freq_media_geral:.1f}%")
     c2.metric("Aulas Ministradas", total_aulas)
     c3.metric("Total de Alunos Esperados", total_alunos_acum)
     c4.metric("Total de Faltas", total_faltas_acum)
 
     st.markdown("---")
 
-    # Consolidação por Professor
     df_prof = (
         df_mes.groupby("professor")
         .agg(
@@ -212,7 +259,6 @@ elif menu == "📊 Dashboard da Gestão":
     col_g1, col_g2 = st.columns([2, 1])
 
     with col_g1:
-      # Gráfico de Frequência por Professor
       fig = px.bar(
           df_prof,
           x="professor",
@@ -237,11 +283,11 @@ elif menu == "📊 Dashboard da Gestão":
           hide_index=True,
       )
 
-    # Detalhamento Tabela Completa
     st.markdown("---")
     st.subheader("📋 Registros Detalhados do Mês")
     st.dataframe(
         df_mes[[
+            "id",
             "data_aula",
             "professor",
             "nome_turma",
@@ -254,7 +300,7 @@ elif menu == "📊 Dashboard da Gestão":
     )
 
 # ---------------------------------------------------------
-# MÓDULO 3: GERENCIAR TURMAS
+# MÓDULO 4: GERENCIAR TURMAS
 # ---------------------------------------------------------
 elif menu == "⚙️ Gerenciar Turmas":
   st.title("⚙️ Cadastro e Gestão de Turmas")
@@ -291,7 +337,7 @@ elif menu == "⚙️ Gerenciar Turmas":
         else:
           st.error("Preencha todos os campos obrigatórios.")
 
-  st.subheader("Turmas Atualmentes Cadastradas")
+  st.subheader("Turmas Atualmente Cadastradas")
   df_todas_turmas = pd.read_sql_query(
       "SELECT id, professor, nome_turma, dia_semana, horario FROM turmas"
       " ORDER BY professor",
