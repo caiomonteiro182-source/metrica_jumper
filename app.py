@@ -114,23 +114,22 @@ if menu == "📝 Lançamento de Aula":
         total_alunos = st.number_input(
             "Total de Alunos da Turma",
             min_value=1,
-            value=18,
+            value=19,
             step=1,
             key="input_total_alunos",
         )
 
       with col2:
-        # Trava dinâmica: o max_value do campo de presentes é o total_alunos
         total_presentes = st.number_input(
             "Quantidade de Presentes",
             min_value=0,
             max_value=int(total_alunos),
-            value=min(10, int(total_alunos)),
+            value=min(17, int(total_alunos)),
             step=1,
             key="input_total_presentes",
         )
 
-      # Validação em tempo real
+      # Validação e Cálculo do Percentual
       if total_presentes > total_alunos:
         st.error(
             f"❌ Erro: O número de presentes ({total_presentes}) não pode ser"
@@ -138,9 +137,14 @@ if menu == "📝 Lançamento de Aula":
         )
       else:
         faltas_calculadas = total_alunos - total_presentes
+        porcentagem_presenca = (
+            (total_presentes / total_alunos) * 100 if total_alunos > 0 else 0
+        )
+
         st.info(
             f"📊 **Resumo:** {total_presentes} Presentes | {faltas_calculadas}"
-            f" Faltas (Total da turma: {total_alunos} alunos)"
+            f" Faltas | **Frequência: {porcentagem_presenca:.1f}%** (Total da"
+            f" turma: {total_alunos} alunos)"
         )
 
         if st.button("💾 Salvar Chamada", type="primary"):
