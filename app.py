@@ -5,62 +5,108 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-# Configuração Inicial da Página e Favicon
+# Configuração da Página e Favicon
 fav_icon = "logoj.png" if os.path.exists("logoj.png") else "📚"
 st.set_page_config(
-    page_title="Frequência JUMPER",
+    page_title="Gestão de Presença | JUMPER",
     page_icon=fav_icon,
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # ---------------------------------------------------------
-# ESTILIZAÇÃO CSS PERSONALIZADA (Identidade JUMPER)
+# ESTILIZAÇÃO CSS PERSONALIZADA (Inspirada no portal JUMPER)
 # ---------------------------------------------------------
 st.markdown(
     """
     <style>
-    /* Cores Institucionais: Verde JUMPER (#A2D136), Dark (#13171C), Card (#1E232A) */
-    :root {
-        --primary-color: #A2D136;
-        --bg-dark: #13171C;
-        --card-bg: #1E232A;
+    /* Fontes e Fundo Claro Moderno */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
     }
     
-    /* Ajustes Gerais de Fundo e Texto */
     .stApp {
-        background-color: #13171C;
-        color: #F0F2F5;
+        background-color: #F8FAFC;
+        color: #1E293B;
     }
     
-    /* Estilização da Barra Lateral */
+    /* Barra Lateral Estilizada em Azul/Grafite Institucional */
     section[data-testid="stSidebar"] {
-        background-color: #1A1F26 !important;
-        border-right: 1px solid #2B323B;
+        background-color: #0F172A !important;
+        border-right: 1px solid #E2E8F0;
     }
     
-    /* Customização dos Botões Principais */
+    section[data-testid="stSidebar"] * {
+        color: #F8FAFC !important;
+    }
+    
+    /* Cards Brancos com Sombra Suave */
+    .jumper-card {
+        background-color: #FFFFFF;
+        border-radius: 12px;
+        padding: 24px;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.03);
+        margin-bottom: 20px;
+    }
+    
+    /* Header Institucional da Marca */
+    .jumper-header {
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        padding: 24px 32px;
+        border-radius: 16px;
+        color: white;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+    }
+    
+    /* Botões em Verde JUMPER (#A2D136) */
     .stButton > button[kind="primary"] {
         background-color: #A2D136 !important;
-        color: #13171C !important;
-        font-weight: bold !important;
+        color: #0F172A !important;
+        font-weight: 700 !important;
         border-radius: 8px !important;
         border: none !important;
-        padding: 0.6rem 1.2rem !important;
-        transition: all 0.3s ease;
+        padding: 0.6rem 1.4rem !important;
+        font-size: 15px !important;
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0 4px 12px rgba(162, 209, 54, 0.25);
     }
+    
     .stButton > button[kind="primary"]:hover {
-        background-color: #B5E249 !important;
-        transform: translateY(-2px);
-        box-shadow: 0px 4px 12px rgba(162, 209, 54, 0.3);
+        background-color: #8EB92D !important;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(162, 209, 54, 0.35);
     }
-    
-    /* Inputs e Formatações de Leitura */
-    div[data-baseweb="input"] input, div[data-baseweb="select"] {
+
+    /* Ajuste de Inputs e Caixas de Seleção */
+    div[data-baseweb="input"] input, div[data-baseweb="select"] > div {
+        background-color: #FFFFFF !important;
         border-radius: 8px !important;
+        border: 1px solid #CBD5E1 !important;
+        color: #0F172A !important;
     }
     
-    /* Ocultar elementos padrão */
+    /* Customização dos Cards de Métricas (st.metric) */
+    [data-testid="stMetric"] {
+        background-color: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        padding: 16px 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    
+    [data-testid="stMetricValue"] {
+        color: #0F172A !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Ocultar menus padrão do Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     </style>
@@ -117,17 +163,20 @@ if CURSOR.fetchone()[0] == 0:
   CONN.commit()
 
 # ---------------------------------------------------------
-# 2. LOGO E NAVEGAÇÃO NA LATERAL
+# 2. NAV E BARRA LATERAL
 # ---------------------------------------------------------
 with st.sidebar:
   if os.path.exists("logo.png"):
     st.image("logo.png", use_container_width=True)
   else:
-    st.title("JUMPER!")
+    st.markdown(
+        "<h2 style='color:#A2D136; font-weight:800;'>JUMPER!</h2>",
+        unsafe_allow_html=True,
+    )
 
   st.markdown("<br>", unsafe_allow_html=True)
   menu = st.radio(
-      "MENU PRINCIPAL",
+      "NAVEGAÇÃO",
       [
           "📝 Lançamento de Aula",
           "🗑️ Excluir / Corrigir Chamada",
@@ -139,11 +188,29 @@ with st.sidebar:
   st.caption("JUMPER Profissões e Idiomas © 2026")
 
 # ---------------------------------------------------------
-# MÓDULO 1: LANÇAMENTO DE PRESENÇA
+# HEADER INSTITUCIONAL NO TOPO
+# ---------------------------------------------------------
+col_h1, col_h2 = st.columns([4, 1])
+with col_h1:
+  st.markdown(
+      """
+        <div style="margin-bottom: 20px;">
+            <h1 style="color: #0F172A; font-weight: 800; font-size: 2.2rem; margin: 0;">Portal de Frequência Acadêmica</h1>
+            <p style="color: #64748B; font-size: 1.05rem; margin-top: 4px;">Acompanhamento pedagógico de turmas e controle de presença da unidade.</p>
+        </div>
+        """,
+      unsafe_allow_html=True,
+  )
+with col_h2:
+  if os.path.exists("logoj.png"):
+    st.image("logoj.png", width=75)
+
+# ---------------------------------------------------------
+# MÓDULO 1: LANÇAMENTO DE PRESENÇA (PROFESSOR)
 # ---------------------------------------------------------
 if menu == "📝 Lançamento de Aula":
-  st.title("📝 Lançamento de Presença")
-  st.caption("Selecione o professor e informe os dados da chamada da aula.")
+  st.markdown('<div class="jumper-card">', unsafe_allow_html=True)
+  st.subheader("📝 Lançamento de Chamada Diária")
 
   df_profs = pd.read_sql_query(
       "SELECT DISTINCT professor FROM turmas ORDER BY professor", CONN
@@ -205,12 +272,12 @@ if menu == "📝 Lançamento de Aula":
         )
 
         if porcentagem_presenca < 80.0:
-          cor_texto = "#FF4B4B"
-          bg_box = "rgba(255, 75, 75, 0.12)"
-          border_color = "#FF4B4B"
+          cor_texto = "#DC2626"  # Vermelho
+          bg_box = "#FEF2F2"
+          border_color = "#EF4444"
         else:
-          cor_texto = "#A2D136"
-          bg_box = "rgba(162, 209, 54, 0.12)"
+          cor_texto = "#15803D"  # Verde
+          bg_box = "#F0FDF4"
           border_color = "#A2D136"
 
         st.markdown(
@@ -218,15 +285,15 @@ if menu == "📝 Lançamento de Aula":
             <div style="
                 background-color: {bg_box};
                 border-left: 5px solid {border_color};
-                padding: 14px 18px;
-                border-radius: 8px;
-                margin-top: 10px;
-                margin-bottom: 20px;
+                padding: 16px 20px;
+                border-radius: 10px;
+                margin-top: 15px;
+                margin-bottom: 25px;
             ">
-                <span style="font-size: 17px; font-weight: bold; color: {cor_texto};">
+                <span style="font-size: 18px; font-weight: 700; color: {cor_texto};">
                     📊 Resumo: Frequência: {porcentagem_presenca:.1f}%
                 </span>
-                <span style="font-size: 15px; color: #D0D4DC; margin-left: 8px;">
+                <span style="font-size: 15px; color: #475569; margin-left: 10px;">
                     (Total da turma: {total_alunos} alunos)
                 </span>
             </div>
@@ -247,12 +314,14 @@ if menu == "📝 Lançamento de Aula":
           )
           CONN.commit()
           st.success("✅ Chamada salva com sucesso!")
+  st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # MÓDULO 2: EXCLUIR / CORRIGIR CHAMADA
 # ---------------------------------------------------------
 elif menu == "🗑️ Excluir / Corrigir Chamada":
-  st.title("🗑️ Gerenciar e Apagar Chamadas")
+  st.markdown('<div class="jumper-card">', unsafe_allow_html=True)
+  st.subheader("🗑️ Gerenciar e Apagar Chamadas")
   st.caption("Selecione um registro efetuado incorretamente para remoção.")
 
   query_ultimos = """
@@ -274,7 +343,6 @@ elif menu == "🗑️ Excluir / Corrigir Chamada":
   if df_chamadas.empty:
     st.info("Nenhuma chamada registrada no histórico para exclusão.")
   else:
-    st.subheader("Últimas Chamadas Registradas")
     st.dataframe(df_chamadas, use_container_width=True, hide_index=True)
 
     st.markdown("---")
@@ -294,20 +362,17 @@ elif menu == "🗑️ Excluir / Corrigir Chamada":
     )
     id_para_deletar = opcoes_deletar[chamada_selecionada]
 
-    btn_deletar = st.button("❌ Confirmar Exclusão da Chamada", type="primary")
-
-    if btn_deletar:
+    if st.button("❌ Confirmar Exclusão da Chamada", type="primary"):
       CURSOR.execute("DELETE FROM presencas WHERE id = ?", (id_para_deletar,))
       CONN.commit()
       st.success("✅ Chamada apagada com sucesso!")
       st.rerun()
+  st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # MÓDULO 3: DASHBOARD DA GESTÃO
 # ---------------------------------------------------------
 elif menu == "📊 Dashboard da Gestão":
-  st.title("📊 Painel de Controle de Frequência")
-
   query = """
     SELECT 
         p.id,
@@ -345,13 +410,14 @@ elif menu == "📊 Dashboard da Gestão":
         else 0
     )
 
+    # Indicadores
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Frequência Média Unidade", f"{freq_media_geral:.1f}%")
     c2.metric("Aulas Ministradas", total_aulas)
-    c3.metric("Total de Alunos Esperados", total_alunos_acum)
-    c4.metric("Total de Faltas", total_faltas_acum)
+    c3.metric("Total Alunos Esperados", total_alunos_acum)
+    c4.metric("Total Faltas no Mês", total_faltas_acum)
 
-    st.markdown("---")
+    st.markdown("<br>", unsafe_allow_html=True)
 
     df_prof = (
         df_mes.groupby("professor")
@@ -370,13 +436,13 @@ elif menu == "📊 Dashboard da Gestão":
     col_g1, col_g2 = st.columns([2, 1])
 
     with col_g1:
-      # Gráfico customizado com a cor institucional verde JUMPER
+      st.markdown('<div class="jumper-card">', unsafe_allow_html=True)
       fig = px.bar(
           df_prof,
           x="professor",
           y="Frequencia_%",
           text="Frequencia_%",
-          title=f"Frequência por Professor - {mes_selecionado}",
+          title=f"Taxa de Frequência por Professor ({mes_selecionado})",
           color_discrete_sequence=["#A2D136"],
           labels={"Frequencia_%": "Presença (%)", "professor": "Professor"},
       )
@@ -388,12 +454,15 @@ elif menu == "📊 Dashboard da Gestão":
       fig.update_layout(
           plot_bgcolor="rgba(0,0,0,0)",
           paper_bgcolor="rgba(0,0,0,0)",
-          font_color="#F0F2F5",
+          font_color="#0F172A",
           yaxis_range=[0, 105],
+          margin=dict(l=10, r=10, t=40, b=10),
       )
       st.plotly_chart(fig, use_container_width=True)
+      st.markdown("</div>", unsafe_allow_html=True)
 
     with col_g2:
+      st.markdown('<div class="jumper-card">', unsafe_allow_html=True)
       st.subheader("Resumo por Professor")
       st.dataframe(
           df_prof[["professor", "aulas", "Frequencia_%"]].rename(
@@ -402,8 +471,9 @@ elif menu == "📊 Dashboard da Gestão":
           use_container_width=True,
           hide_index=True,
       )
+      st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("---")
+    st.markdown('<div class="jumper-card">', unsafe_allow_html=True)
     st.subheader("📋 Registros Detalhados do Mês")
     st.dataframe(
         df_mes[[
@@ -418,12 +488,14 @@ elif menu == "📊 Dashboard da Gestão":
         use_container_width=True,
         hide_index=True,
     )
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # MÓDULO 4: GERENCIAR TURMAS
 # ---------------------------------------------------------
 elif menu == "⚙️ Gerenciar Turmas":
-  st.title("⚙️ Cadastro e Gestão de Turmas")
+  st.markdown('<div class="jumper-card">', unsafe_allow_html=True)
+  st.subheader("⚙️ Cadastro e Gestão de Turmas")
 
   with st.expander("➕ Cadastrar Nova Turma"):
     with st.form("form_nova_turma", clear_on_submit=True):
@@ -457,6 +529,7 @@ elif menu == "⚙️ Gerenciar Turmas":
         else:
           st.error("Preencha todos os campos obrigatórios.")
 
+  st.markdown("<br>", unsafe_allow_html=True)
   st.subheader("Turmas Atualmente Cadastradas")
   df_todas_turmas = pd.read_sql_query(
       "SELECT id, professor, nome_turma, dia_semana, horario FROM turmas"
@@ -464,3 +537,4 @@ elif menu == "⚙️ Gerenciar Turmas":
       CONN,
   )
   st.dataframe(df_todas_turmas, use_container_width=True, hide_index=True)
+  st.markdown("</div>", unsafe_allow_html=True)
