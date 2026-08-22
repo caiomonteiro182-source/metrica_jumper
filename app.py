@@ -26,19 +26,16 @@ st.markdown(
         font-family: 'Inter', sans-serif;
     }
     
-    /* Fundo Escuro Moderno */
     .stApp {
         background-color: #0E1318;
         color: #F1F5F9;
     }
     
-    /* Barra Lateral Escura */
     section[data-testid="stSidebar"] {
         background-color: #161C23 !important;
         border-right: 1px solid #232D38;
     }
     
-    /* Cards Escuros Estilizados */
     .jumper-card {
         background-color: #161C23;
         border-radius: 12px;
@@ -48,7 +45,6 @@ st.markdown(
         margin-bottom: 20px;
     }
     
-    /* Destaque das Caixas de Seleção e Inputs */
     div[data-baseweb="select"] > div, div[data-baseweb="input"] input {
         background-color: #1E2630 !important;
         border: 2px solid #334155 !important;
@@ -62,7 +58,6 @@ st.markdown(
         border-color: #A2D136 !important;
     }
     
-    /* Rótulos das Caixas de Entrada */
     label {
         color: #A2D136 !important;
         font-weight: 700 !important;
@@ -71,7 +66,6 @@ st.markdown(
         letter-spacing: 0.5px;
     }
 
-    /* Botão Principal em Verde JUMPER (#A2D136) */
     .stButton > button[kind="primary"] {
         background-color: #A2D136 !important;
         color: #0E1318 !important;
@@ -90,7 +84,6 @@ st.markdown(
         box-shadow: 0 6px 20px rgba(162, 209, 54, 0.45);
     }
     
-    /* Cards de Métricas no Dashboard */
     [data-testid="stMetric"] {
         background-color: #161C23;
         border: 1px solid #232D38;
@@ -103,7 +96,6 @@ st.markdown(
         font-weight: 800 !important;
     }
 
-    /* Ocultar elementos padrão do Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     </style>
@@ -112,7 +104,7 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# 1. BANCO DE DADOS (Criação e Conexão)
+# 1. BANCO DE DADOS (Criação e Limpeza Automática)
 # ---------------------------------------------------------
 CONN = sqlite3.connect("jumper_presenca.db", check_same_thread=False)
 CURSOR = CONN.cursor()
@@ -139,61 +131,45 @@ CREATE TABLE IF NOT EXISTS presencas (
 """)
 CONN.commit()
 
-# TURMAS EXATAS EXTRAÍDAS DO ARQUIVO BASE EXCEL
+# Limpeza e Repopulação Exata das 25 Turmas da Planilha Base
 turmas_base_excel = [
-    # ALINE (1 turma)
     ("ALINE", "CABELEIREIRO", "Quinta-feira", "19:00 - 21:00"),
-    # CAIO (3 turmas)
-    ("CAIO", "INFORMÁTICA - T1", "Sábado", "08:30 às 10:30"),
-    ("CAIO", "INFORMÁTICA - T2", "Sábado", "10:30 às 12:30"),
-    ("CAIO", "INFORMÁTICA - T3", "Terça-feira", "19:00 às 21:00"),
-    # HELLEN (1 turma única)
+    ("CAIO", "INFORMÁTICA T1", "Sábado", "08:30 às 10:30"),
+    ("CAIO", "INFORMÁTICA T2", "Sábado", "10:30 às 12:30"),
+    ("CAIO", "INFORMÁTICA T3", "Terça-feira", "19:00 às 21:00"),
     ("HELLEN", "INGLÊS", "Quarta-feira", "18:30 - 20:30"),
-    # SAMUEL (1 turma)
     ("SAMUEL", "ROBÓTICA", "Sábado", "08:30"),
-    # JULIA (1 turma)
     ("JULIA", "ADMINISTRAÇÃO", "Sábado", "10:30 às 12:30"),
-    # JURANDIR (3 turmas)
-    ("JURANDIR", "INFORMÁTICA - T1", "Terça-feira", "14:00 às 16:00"),
-    ("JURANDIR", "INFORMÁTICA - T2", "Terça-feira", "16:00 às 18:00"),
-    ("JURANDIR", "INFORMÁTICA - T3", "Quarta-feira", "14:00 às 16:00"),
-    # KELLY (4 turmas)
-    ("KELLY", "DESIGN - T1", "Sábado", "08:30 - 10:30"),
-    ("KELLY", "DESIGN - T2", "Sábado", "10:30 - 12:30"),
-    ("KELLY", "DESIGN - T3", "Sábado", "13:00 às 15:00"),
-    ("KELLY", "DESIGN - T4", "Sábado", "16:00 às 18:00"),
-    # MENUHA (1 turma)
+    ("JURANDIR", "INFORMÁTICA T1", "Terça-feira", "14:00 às 16:00"),
+    ("JURANDIR", "INFORMÁTICA T2", "Terça-feira", "16:00 às 18:00"),
+    ("JURANDIR", "INFORMÁTICA T3", "Quarta-feira", "14:00 às 16:00"),
+    ("KELLY", "DESIGN T1", "Sábado", "08:30 - 10:30"),
+    ("KELLY", "DESIGN T2", "Sábado", "10:30 - 12:30"),
+    ("KELLY", "DESIGN T3", "Sábado", "13:00 às 15:00"),
+    ("KELLY", "DESIGN T4", "Sábado", "16:00 às 18:00"),
     ("MENUHA", "IDIOMAS", "Sábado", "10:30"),
-    # NAYANE (4 turmas)
-    ("NAYANE", "INGLÊS - T1", "Quarta-feira", "09:00 - 11:00"),
-    ("NAYANE", "INGLÊS - T2", "Quarta-feira", "16:00 - 18:00"),
-    ("NAYANE", "INGLÊS - T3", "Quarta-feira", "19:00 - 21:00"),
-    ("NAYANE", "INGLÊS - T4", "Sábado", "13:00 - 15:00"),
-    # DAVI (1 turma)
+    ("NAYANE", "INGLÊS T1", "Quarta-feira", "09:00 - 11:00"),
+    ("NAYANE", "INGLÊS T2", "Quarta-feira", "16:00 - 18:00"),
+    ("NAYANE", "INGLÊS T3", "Quarta-feira", "19:00 - 21:00"),
+    ("NAYANE", "INGLÊS T4", "Sábado", "13:00 - 15:00"),
     ("DAVI", "INFORMÁTICA", "Segunda-feira", "19:00 - 21:00"),
-    # TULIO (3 turmas)
-    ("TULIO", "INFORMÁTICA - T1", "Sábado", "08:30 - 10:30"),
-    ("TULIO", "INFORMÁTICA - T2", "Sábado", "10:30 - 12:30"),
-    ("TULIO", "INFORMÁTICA - T3", "Quarta-feira", "19:00 - 21:00"),
-    # VINICIUS (2 turmas)
-    ("VINICIUS", "GESTAO - T1", "Sábado", "10:30"),
-    ("VINICIUS", "GESTAO - T2", "Quinta-feira", "09:00"),
+    ("TULIO", "INFORMÁTICA T1", "Sábado", "08:30 - 10:30"),
+    ("TULIO", "INFORMÁTICA T2", "Sábado", "10:30 - 12:30"),
+    ("TULIO", "INFORMÁTICA T3", "Quarta-feira", "19:00 - 21:00"),
+    ("VINICIUS", "GESTÃO T1", "Sábado", "10:30"),
+    ("VINICIUS", "GESTÃO T2", "Quinta-feira", "09:00"),
 ]
 
-# Sincronizador: Garante que o banco contenha estritamente as turmas do arquivo base
-for prof, nome, dia, hora in turmas_base_excel:
-  CURSOR.execute(
-      "SELECT COUNT(*) FROM turmas WHERE professor = ? AND dia_semana = ? AND"
-      " horario = ?",
-      (prof, dia, hora),
+# Recarrega a tabela para garantir sincronia com a planilha
+CURSOR.execute("SELECT COUNT(*) FROM turmas")
+if CURSOR.fetchone()[0] < 25:
+  CURSOR.execute("DELETE FROM turmas")
+  CURSOR.executemany(
+      "INSERT INTO turmas (professor, nome_turma, dia_semana, horario) VALUES"
+      " (?, ?, ?, ?)",
+      turmas_base_excel,
   )
-  if CURSOR.fetchone()[0] == 0:
-    CURSOR.execute(
-        "INSERT INTO turmas (professor, nome_turma, dia_semana, horario)"
-        " VALUES (?, ?, ?, ?)",
-        (prof, nome, dia, hora),
-    )
-CONN.commit()
+  CONN.commit()
 
 # ---------------------------------------------------------
 # 2. BARRA LATERAL (MENU)
@@ -252,7 +228,7 @@ if menu == "📝 Lançamento de Aula":
   else:
     prof_selecionado = st.selectbox("👤 Selecione o Professor", professores)
 
-    # Busca turmas vinculadas ao professor selecionado
+    # Exibe Nome da Turma + Dia e Horário sem duplicar
     df_turmas_prof = pd.read_sql_query(
         "SELECT id, nome_turma || ' - ' || dia_semana || ' (' || horario || ')'"
         " AS descricao FROM turmas WHERE professor = ?",
@@ -420,7 +396,7 @@ elif menu == "📊 Dashboard da Gestão":
   df_dados = pd.read_sql_query(query, CONN)
 
   if df_dados.empty:
-    st.info("Nenhum lançamento registrado até o momento.")
+    st.info("Nenum lançamento registrado até o momento.")
   else:
     meses_disponiveis = sorted(df_dados["mes_ano"].unique(), reverse=True)
     mes_selecionado = st.sidebar.selectbox(
@@ -522,8 +498,8 @@ elif menu == "⚙️ Gerenciar Turmas":
 
   with st.expander("➕ Cadastrar Nova Turma"):
     with st.form("form_nova_turma", clear_on_submit=True):
-      novo_prof = st.text_input("Nome do Professor (Ex: HELLEN)").upper()
-      nome_turma = st.text_input("Nome/Curso da Turma (Ex: INGLÊS)")
+      novo_prof = st.text_input("Nome do Professor").strip().upper()
+      nome_turma = st.text_input("Nome/Curso da Turma (Ex: INFORMÁTICA)")
       dia_semana = st.selectbox(
           "Dia da Semana",
           [
@@ -544,13 +520,10 @@ elif menu == "⚙️ Gerenciar Turmas":
           CURSOR.execute(
               "INSERT INTO turmas (professor, nome_turma, dia_semana, horario)"
               " VALUES (?, ?, ?, ?)",
-              (novo_prof.upper(), nome_turma, dia_semana, horario),
+              (novo_prof, nome_turma, dia_semana, horario),
           )
           CONN.commit()
-          st.success(
-              f"Turma cadastrada com sucesso para o(a) professor(a)"
-              f" {novo_prof}!"
-          )
+          st.success(f"Nova turma cadastrada para o professor {novo_prof}!")
           st.rerun()
         else:
           st.error("Preencha todos os campos obrigatórios.")
