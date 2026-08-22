@@ -5,13 +5,13 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-# Configuração da Página e Favicon
+# Configuração da Página e Favicon (Sidebar Recolhida por Padrão)
 fav_icon = "logoj.png" if os.path.exists("logoj.png") else "📚"
 st.set_page_config(
     page_title="Gestão de Presença | JUMPER",
     page_icon=fav_icon,
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # ---------------------------------------------------------
@@ -26,25 +26,35 @@ st.markdown(
         font-family: 'Inter', sans-serif;
     }
     
+    /* Esconder completamente a barra lateral do Streamlit */
+    section[data-testid="stSidebar"] {
+        display: none !important;
+    }
+    
     .stApp {
         background-color: #0E1318;
         color: #F1F5F9;
     }
     
-    section[data-testid="stSidebar"] {
+    /* Botões do Menu Superior na Tela (Mobile Friendly) */
+    div[data-testid="stHorizontalBlock"] button {
         background-color: #161C23 !important;
-        border-right: 1px solid #232D38;
+        border: 2px solid #232D38 !important;
+        color: #F1F5F9 !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        border-radius: 10px !important;
+        padding: 0.6rem 0.5rem !important;
+        width: 100% !important;
+        transition: all 0.2s ease-in-out;
     }
     
-    .jumper-card {
-        background-color: #161C23;
-        border-radius: 12px;
-        padding: 24px;
-        border: 1px solid #232D38;
-        box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.25);
-        margin-bottom: 20px;
+    div[data-testid="stHorizontalBlock"] button:hover {
+        border-color: #A2D136 !important;
+        color: #A2D136 !important;
     }
     
+    /* Destaque das Caixas de Seleção e Inputs */
     div[data-baseweb="select"] > div, div[data-baseweb="input"] input {
         background-color: #1E2630 !important;
         border: 2px solid #334155 !important;
@@ -66,6 +76,7 @@ st.markdown(
         letter-spacing: 0.5px;
     }
 
+    /* Botão Principal de Ação */
     .stButton > button[kind="primary"] {
         background-color: #A2D136 !important;
         color: #0E1318 !important;
@@ -84,6 +95,7 @@ st.markdown(
         box-shadow: 0 6px 20px rgba(162, 209, 54, 0.45);
     }
     
+    /* Cards de Métricas no Dashboard */
     [data-testid="stMetric"] {
         background-color: #161C23;
         border: 1px solid #232D38;
@@ -104,7 +116,7 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# 1. BANCO DE DADOS (Criação e Limpeza Definitiva)
+# 1. BANCO DE DADOS (Criação e Inicialização)
 # ---------------------------------------------------------
 CONN = sqlite3.connect("jumper_presenca.db", check_same_thread=False)
 CURSOR = CONN.cursor()
@@ -131,7 +143,6 @@ CREATE TABLE IF NOT EXISTS presencas (
 """)
 CONN.commit()
 
-# Lista Única Oficial de Turmas (Extraídas do Excel Base)
 TURMAS_BASE_EXCEL = [
     ("ALINE", "CABELEIREIRO", "Quinta-feira", "19:00 - 21:00"),
     ("CAIO", "INFORMÁTICA - T1", "Sábado", "08:30 às 10:30"),
@@ -160,7 +171,6 @@ TURMAS_BASE_EXCEL = [
     ("VINICIUS", "GESTÃO - T2", "Quinta-feira", "09:00"),
 ]
 
-# Função para resetar e forçar a deduplicação
 def resetar_turmas_base():
   CURSOR.execute("DELETE FROM turmas")
   CURSOR.executemany(
@@ -170,58 +180,62 @@ def resetar_turmas_base():
   )
   CONN.commit()
 
-# Limpa duplicados antigos se existirem mais de 25 turmas cadastradas
 CURSOR.execute("SELECT COUNT(*) FROM turmas")
 if CURSOR.fetchone()[0] != 25:
   resetar_turmas_base()
 
 # ---------------------------------------------------------
-# 2. BARRA LATERAL (MENU)
+# CABEÇALHO COM LOGO COMPLETA "JUMPER!"
 # ---------------------------------------------------------
-with st.sidebar:
+col_top1, col_top2 = st.columns([4, 1])
+with col_top1:
   if os.path.exists("logo.png"):
-    st.image("logo.png", use_container_width=True)
+    st.image("logo.png", width=220)
   else:
     st.markdown(
-        "<h2 style='color:#A2D136; font-weight:800;'>JUMPER!</h2>",
+        "<h1 style='color:#A2D136; font-weight:800; margin:0;'>JUMPER!</h1>",
         unsafe_allow_html=True,
     )
-
-  st.markdown("<br>", unsafe_allow_html=True)
-  menu = st.radio(
-      "MENU PRINCIPAL",
-      [
-          "📝 Lançamento de Aula",
-          "🗑️ Excluir / Corrigir Chamada",
-          "📊 Dashboard da Gestão",
-          "⚙️ Gerenciar Turmas",
-      ],
-  )
-  st.markdown("---")
-  st.caption("JUMPER Profissões e Idiomas © 2026")
-
-# ---------------------------------------------------------
-# CABEÇALHO COMPACTO COM LOGO "J!"
-# ---------------------------------------------------------
-col_header1, col_header2 = st.columns([5, 1])
-with col_header1:
-  st.markdown(
-      """
-      <div style="margin-bottom: 20px;">
-          <h1 style="color: #FFFFFF; font-weight: 800; font-size: 2.2rem; margin: 0;">Frequência de Turmas</h1>
-          <p style="color: #94A3B8; font-size: 1rem; margin-top: 4px;">Sistema de lançamento diário de presença e métricas pedagógicas</p>
-      </div>
-      """,
-      unsafe_allow_html=True,
-  )
-with col_header2:
+with col_top2:
   if os.path.exists("logoj.png"):
-    st.image("logoj.png", width=75)
+    st.image("logoj.png", width=60)
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# ---------------------------------------------------------
+# MENU DE NAVEGAÇÃO POR BOTÕES NA TELA (MOBILE-FRIENDLY)
+# ---------------------------------------------------------
+if "aba_ativa" not in st.session_state:
+  st.session_state.aba_ativa = "📝 Lançamento"
+
+col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+
+with col_m1:
+  if st.button("📝 Lançamento"):
+    st.session_state.aba_ativa = "📝 Lançamento"
+    st.rerun()
+
+with col_m2:
+  if st.button("🗑️ Corrigir"):
+    st.session_state.aba_ativa = "🗑️ Corrigir"
+    st.rerun()
+
+with col_m3:
+  if st.button("📊 Dashboard"):
+    st.session_state.aba_ativa = "📊 Dashboard"
+    st.rerun()
+
+with col_m4:
+  if st.button("⚙️ Gerenciar"):
+    st.session_state.aba_ativa = "⚙️ Gerenciar"
+    st.rerun()
+
+st.markdown("---")
 
 # ---------------------------------------------------------
 # MÓDULO 1: LANÇAMENTO DE PRESENÇA (PROFESSOR)
 # ---------------------------------------------------------
-if menu == "📝 Lançamento de Aula":
+if st.session_state.aba_ativa == "📝 Lançamento":
   df_profs = pd.read_sql_query(
       "SELECT DISTINCT professor FROM turmas ORDER BY professor", CONN
   )
@@ -230,17 +244,8 @@ if menu == "📝 Lançamento de Aula":
   if not professores:
     st.warning("Nenhum professor cadastrado no banco de dados.")
   else:
-    col_prof, col_reset = st.columns([4, 1])
-    with col_prof:
-      prof_selecionado = st.selectbox("👤 Selecione o Professor", professores)
-    with col_reset:
-      st.markdown("<br>", unsafe_allow_html=True)
-      if st.button("🔄 Corrigir Duplicados"):
-        resetar_turmas_base()
-        st.success("Lista limpa!")
-        st.rerun()
+    prof_selecionado = st.selectbox("👤 Selecione o Professor", professores)
 
-    # Query Deduplicada por Nome da Turma + Horário
     df_turmas_prof = pd.read_sql_query(
         """
         SELECT MIN(id) as id, nome_turma || ' - ' || dia_semana || ' (' || horario || ')' AS descricao 
@@ -265,7 +270,6 @@ if menu == "📝 Lançamento de Aula":
       )
       turma_id = opcoes_turmas[turma_desc]
 
-      # Data no formato brasileiro (DD/MM/YYYY)
       data_aula = st.date_input(
           "📅 Data da Aula", value=datetime.date.today(), format="DD/MM/YYYY"
       )
@@ -347,7 +351,7 @@ if menu == "📝 Lançamento de Aula":
 # ---------------------------------------------------------
 # MÓDULO 2: EXCLUIR / CORRIGIR CHAMADA
 # ---------------------------------------------------------
-elif menu == "🗑️ Excluir / Corrigir Chamada":
+elif st.session_state.aba_ativa == "🗑️ Corrigir":
   st.subheader("🗑️ Gerenciar e Apagar Chamadas")
   st.caption("Selecione um registro efetuado incorretamente para remoção.")
 
@@ -398,7 +402,7 @@ elif menu == "🗑️ Excluir / Corrigir Chamada":
 # ---------------------------------------------------------
 # MÓDULO 3: DASHBOARD DA GESTÃO
 # ---------------------------------------------------------
-elif menu == "📊 Dashboard da Gestão":
+elif st.session_state.aba_ativa == "📊 Dashboard":
   query = """
     SELECT 
         p.id,
@@ -420,9 +424,7 @@ elif menu == "📊 Dashboard da Gestão":
     st.info("Nenhum lançamento registrado até o momento.")
   else:
     meses_disponiveis = sorted(df_dados["mes_ano"].unique(), reverse=True)
-    mes_selecionado = st.sidebar.selectbox(
-        "Filtrar por Mês/Ano", meses_disponiveis
-    )
+    mes_selecionado = st.selectbox("Filtrar por Mês/Ano", meses_disponiveis)
 
     df_mes = df_dados[df_dados["mes_ano"] == mes_selecionado].copy()
 
@@ -514,7 +516,7 @@ elif menu == "📊 Dashboard da Gestão":
 # ---------------------------------------------------------
 # MÓDULO 4: GERENCIAR TURMAS + MANUTENÇÃO
 # ---------------------------------------------------------
-elif menu == "⚙️ Gerenciar Turmas":
+elif st.session_state.aba_ativa == "⚙️ Gerenciar":
   st.subheader("⚙️ Cadastro e Gestão de Turmas")
 
   with st.expander("➕ Cadastrar Nova Turma"):
