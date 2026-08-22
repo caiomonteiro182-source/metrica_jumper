@@ -26,18 +26,15 @@ st.markdown(
         font-family: 'Inter', sans-serif;
     }
     
-    /* Esconder completamente a barra lateral */
     section[data-testid="stSidebar"] {
         display: none !important;
     }
     
-    /* Fundo em Degradê Temático JUMPER */
     .stApp {
         background: linear-gradient(135deg, #090D12 0%, #111822 50%, #1A2433 100%);
         color: #F8FAFC;
     }
     
-    /* Centralização dos Segmentos do Menu */
     div[data-testid="stSegmentedControl"] {
         display: flex !important;
         justify-content: center !important;
@@ -49,7 +46,6 @@ st.markdown(
         border: 1px solid rgba(162, 209, 54, 0.2) !important;
     }
     
-    /* Botões Unificados do Segmented Control */
     div[data-testid="stSegmentedControl"] button {
         border-radius: 8px !important;
         font-weight: 700 !important;
@@ -66,7 +62,6 @@ st.markdown(
         box-shadow: 0 2px 10px rgba(162, 209, 54, 0.3) !important;
     }
 
-    /* Destaque das Caixas de Seleção e Inputs */
     div[data-baseweb="select"] > div, div[data-baseweb="input"] input {
         background-color: #151D28 !important;
         border: 1.5px solid #2A3648 !important;
@@ -88,7 +83,6 @@ st.markdown(
         letter-spacing: 0.6px;
     }
 
-    /* Botão Principal em Verde JUMPER */
     .stButton > button[kind="primary"] {
         background: linear-gradient(135deg, #A2D136 0%, #8EC328 100%) !important;
         color: #0B0F14 !important;
@@ -108,7 +102,6 @@ st.markdown(
         box-shadow: 0 6px 25px rgba(162, 209, 54, 0.5);
     }
     
-    /* Cards de Métricas no Dashboard */
     [data-testid="stMetric"] {
         background: rgba(22, 30, 41, 0.8);
         border: 1px solid rgba(162, 209, 54, 0.2);
@@ -130,7 +123,7 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# 1. BANCO DE DADOS (Criação e Conexão)
+# 1. BANCO DE DADOS (Suporte Multi-Unidade)
 # ---------------------------------------------------------
 CONN = sqlite3.connect("jumper_presenca.db", check_same_thread=False)
 CURSOR = CONN.cursor()
@@ -138,9 +131,9 @@ CURSOR = CONN.cursor()
 CURSOR.execute("""
 CREATE TABLE IF NOT EXISTS turmas (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    unidade TEXT NOT NULL,
     professor TEXT NOT NULL,
     nome_turma TEXT NOT NULL,
-    dia_semana TEXT NOT NULL,
     horario TEXT NOT NULL
 )
 """)
@@ -157,41 +150,98 @@ CREATE TABLE IF NOT EXISTS presencas (
 """)
 CONN.commit()
 
-TURMAS_BASE_EXCEL = [
-    ("ALINE", "CABELEIREIRO", "Quinta-feira", "19:00 - 21:00"),
-    ("CAIO", "INFORMÁTICA - T1", "Sábado", "08:30 às 10:30"),
-    ("CAIO", "INFORMÁTICA - T2", "Sábado", "10:30 às 12:30"),
-    ("CAIO", "INFORMÁTICA - T3", "Terça-feira", "19:00 às 21:00"),
-    ("HELLEN", "INGLÊS", "Quarta-feira", "18:30 - 20:30"),
-    ("SAMUEL", "ROBÓTICA", "Sábado", "08:30"),
-    ("JULIA", "ADMINISTRAÇÃO", "Sábado", "10:30 às 12:30"),
-    ("JURANDIR", "INFORMÁTICA - T1", "Terça-feira", "14:00 às 16:00"),
-    ("JURANDIR", "INFORMÁTICA - T2", "Terça-feira", "16:00 às 18:00"),
-    ("JURANDIR", "INFORMÁTICA - T3", "Quarta-feira", "14:00 às 16:00"),
-    ("KELLY", "DESIGN - T1", "Sábado", "08:30 - 10:30"),
-    ("KELLY", "DESIGN - T2", "Sábado", "10:30 - 12:30"),
-    ("KELLY", "DESIGN - T3", "Sábado", "13:00 às 15:00"),
-    ("KELLY", "DESIGN - T4", "Sábado", "16:00 às 18:00"),
-    ("MENUHA", "IDIOMAS", "Sábado", "10:30"),
-    ("NAYANE", "INGLÊS - T1", "Quarta-feira", "09:00 - 11:00"),
-    ("NAYANE", "INGLÊS - T2", "Quarta-feira", "16:00 - 18:00"),
-    ("NAYANE", "INGLÊS - T3", "Quarta-feira", "19:00 - 21:00"),
-    ("NAYANE", "INGLÊS - T4", "Sábado", "13:00 - 15:00"),
-    ("DAVI", "INFORMÁTICA", "Segunda-feira", "19:00 - 21:00"),
-    ("TULIO", "INFORMÁTICA - T1", "Sábado", "08:30 - 10:30"),
-    ("TULIO", "INFORMÁTICA - T2", "Sábado", "10:30 - 12:30"),
-    ("TULIO", "INFORMÁTICA - T3", "Quarta-feira", "19:00 - 21:00"),
-    ("VINICIUS", "GESTÃO - T1", "Sábado", "10:30"),
-    ("VINICIUS", "GESTÃO - T2", "Quinta-feira", "09:00"),
+# TURMAS BASE DAS DUAS UNIDADES (CENTRO E NORTE/SAUL)
+TURMAS_TODAS_UNIDADES = [
+    # UNIDADE CENTRO (25 turmas)
+    ("Centro", "ALINE", "CABELEIREIRO", "Quinta-feira (19:00 - 21:00)"),
+    ("Centro", "CAIO", "INFORMÁTICA - T1", "Sábado (08:30 às 10:30)"),
+    ("Centro", "CAIO", "INFORMÁTICA - T2", "Sábado (10:30 às 12:30)"),
+    ("Centro", "CAIO", "INFORMÁTICA - T3", "Terça-feira (19:00 às 21:00)"),
+    ("Centro", "HELLEN", "INGLÊS", "Quarta-feira (18:30 - 20:30)"),
+    ("Centro", "SAMUEL", "ROBÓTICA", "Sábado (08:30)"),
+    ("Centro", "JULIA", "ADMINISTRAÇÃO", "Sábado (10:30 às 12:30)"),
+    ("Centro", "JURANDIR", "INFORMÁTICA - T1", "Terça-feira (14:00 às 16:00)"),
+    ("Centro", "JURANDIR", "INFORMÁTICA - T2", "Terça-feira (16:00 às 18:00)"),
+    ("Centro", "JURANDIR", "INFORMÁTICA - T3", "Quarta-feira (14:00 às 16:00)"),
+    ("Centro", "KELLY", "DESIGN - T1", "Sábado (08:30 - 10:30)"),
+    ("Centro", "KELLY", "DESIGN - T2", "Sábado (10:30 - 12:30)"),
+    ("Centro", "KELLY", "DESIGN - T3", "Sábado (13:00 às 15:00)"),
+    ("Centro", "KELLY", "DESIGN - T4", "Sábado (16:00 às 18:00)"),
+    ("Centro", "MENUHA", "IDIOMAS", "Sábado (10:30)"),
+    ("Centro", "NAYANE", "INGLÊS - T1", "Quarta-feira (09:00 - 11:00)"),
+    ("Centro", "NAYANE", "INGLÊS - T2", "Quarta-feira (16:00 - 18:00)"),
+    ("Centro", "NAYANE", "INGLÊS - T3", "Quarta-feira (19:00 - 21:00)"),
+    ("Centro", "NAYANE", "INGLÊS - T4", "Sábado (13:00 - 15:00)"),
+    ("Centro", "DAVI", "INFORMÁTICA", "Segunda-feira (19:00 - 21:00)"),
+    ("Centro", "TULIO", "INFORMÁTICA - T1", "Sábado (08:30 - 10:30)"),
+    ("Centro", "TULIO", "INFORMÁTICA - T2", "Sábado (10:30 - 12:30)"),
+    ("Centro", "TULIO", "INFORMÁTICA - T3", "Quarta-feira (19:00 - 21:00)"),
+    ("Centro", "VINICIUS", "GESTÃO - T1", "Sábado (10:30)"),
+    ("Centro", "VINICIUS", "GESTÃO - T2", "Quinta-feira (09:00)"),
+    # UNIDADE NORTE (SAUL) - (29 turmas)
+    ("Norte (Saul)", "ALINE", "ESTÉTICA - T1", "SEGUNDA-FEIRA (14:00 - 16:00)"),
+    ("Norte (Saul)", "ALINE", "ESTÉTICA - T2", "SEGUNDA-FEIRA (19:00 - 21:00)"),
+    ("Norte (Saul)", "SAMUEL", "ROBÓTICA - T1", "TERÇA-FEIRA (19:00 - 21:00)"),
+    ("Norte (Saul)", "SAMUEL", "ROBÓTICA - T2", "QUINTA-FEIRA (19:00 - 21:00)"),
+    ("Norte (Saul)", "BRUNO", "INGLÊS", "QUARTA-FEIRA (19:00 - 21:00)"),
+    (
+        "Norte (Saul)",
+        "JURANDIR",
+        "INFORMÁTICA - T1",
+        "SEGUNDA-FEIRA (16:00 - 18:00)",
+    ),
+    (
+        "Norte (Saul)",
+        "JURANDIR",
+        "INFORMÁTICA - T2",
+        "QUINTA-FEIRA (16:00 - 18:00)",
+    ),
+    (
+        "Norte (Saul)",
+        "JURANDIR",
+        "INFORMÁTICA - T3",
+        "QUINTA-FEIRA (14:00 - 16:00)",
+    ),
+    (
+        "Norte (Saul)",
+        "JURANDIR",
+        "ADMINISTRAÇÃO",
+        "SEGUNDA-FEIRA (19:00 às 21:00)",
+    ),
+    ("Norte (Saul)", "CAIO", "INFORMÁTICA", "QUARTA-FEIRA (19:00 - 21:00)"),
+    ("Norte (Saul)", "LEONARDO", "INFORMÁTICA - T1", "SÁBADO (08:30 - 10:30)"),
+    ("Norte (Saul)", "LEONARDO", "INFORMÁTICA - T2", "SÁBADO (10:30 - 12:30)"),
+    ("Norte (Saul)", "GABRIEL", "DESIGN - T1", "SÁBADO (08:30 - 10:30)"),
+    ("Norte (Saul)", "GABRIEL", "DESIGN - T2", "SÁBADO (10:30 - 12:30)"),
+    ("Norte (Saul)", "MENUHA", "INGLÊS", "SEGUNDA-FEIRA (19:00 - 21:00)"),
+    ("Norte (Saul)", "KELLY", "BELEZA - T1", "SEGUNDA-FEIRA (19:00 - 21:00)"),
+    ("Norte (Saul)", "KELLY", "BELEZA - EXTENSÃO", "SEXTA-FEIRA (19:00 - 21:00)"),
+    (
+        "Norte (Saul)",
+        "KELLY",
+        "BELEZA - ALONGAMENTO",
+        "TERÇA-FEIRA (19:00 - 21:00)",
+    ),
+    ("Norte (Saul)", "NAYANE", "INGLÊS - T1", "TERÇA-FEIRA (14:00 - 16:00)"),
+    ("Norte (Saul)", "NAYANE", "INGLÊS - T2", "SÁBADO (08:30 - 10:30)"),
+    ("Norte (Saul)", "NAYANE", "INGLÊS - T3", "TERÇA-FEIRA (19:00 - 21:00)"),
+    ("Norte (Saul)", "NAYANE", "INGLÊS - T4", "SÁBADO (10:30 - 12:30)"),
+    ("Norte (Saul)", "NAYANE", "INGLÊS - T5", "QUINTA-FEIRA (19:00 - 21:00)"),
+    ("Norte (Saul)", "FULVIO", "IDIOMAS - T1", "TERÇA-FEIRA (19:00 - 21:00)"),
+    ("Norte (Saul)", "FULVIO", "IDIOMAS - T2", "QUINTA-FEIRA (19:00 - 21:00)"),
+    ("Norte (Saul)", "FULVIO", "IDIOMAS - T3", "SÁBADO (13:30 às 15:30)"),
+    ("Norte (Saul)", "VICTÓRIA", "GESTÃO - T1", "QUINTA-FEIRA (19:00 - 21:00)"),
+    ("Norte (Saul)", "VICTÓRIA", "GESTÃO - T2", "SÁBADO (08:30 - 10:30)"),
+    ("Norte (Saul)", "VICTÓRIA", "GESTÃO - T3", "SÁBADO (10:30 - 12:30)"),
 ]
 
 
 def resetar_turmas_base():
   CURSOR.execute("DELETE FROM turmas")
   CURSOR.executemany(
-      "INSERT INTO turmas (professor, nome_turma, dia_semana, horario)"
-      " VALUES (?, ?, ?, ?)",
-      TURMAS_BASE_EXCEL,
+      "INSERT INTO turmas (unidade, professor, nome_turma, horario) VALUES"
+      " (?, ?, ?, ?)",
+      TURMAS_TODAS_UNIDADES,
   )
   CONN.commit()
 
@@ -217,7 +267,7 @@ with col_l2:
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# NAVEGAÇÃO AGRUPADA
+# NAVEGAÇÃO AGRUPADA POR BOTÕES
 # ---------------------------------------------------------
 opcoes_menu = [
     "📝 Lançamento",
@@ -233,29 +283,45 @@ aba_ativa = st.segmented_control(
 st.markdown("---")
 
 # ---------------------------------------------------------
-# MÓDULO 1: LANÇAMENTO DE PRESENÇA
+# SELEÇÃO DA UNIDADE (CENTRO / NORTE) - AFETA TODO O SISTEMA
+# ---------------------------------------------------------
+col_unid1, col_unid2 = st.columns([1, 2])
+with col_unid1:
+  unidade_selecionada = st.selectbox(
+      "🏢 SELECIONE A UNIDADE", ["Centro", "Norte (Saul)"]
+  )
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# ---------------------------------------------------------
+# MÓDULO 1: LANÇAMENTO DE PRESENÇA (FILTRADO POR UNIDADE)
 # ---------------------------------------------------------
 if aba_ativa == "📝 Lançamento":
   df_profs = pd.read_sql_query(
-      "SELECT DISTINCT professor FROM turmas ORDER BY professor", CONN
+      "SELECT DISTINCT professor FROM turmas WHERE unidade = ? ORDER BY"
+      " professor",
+      CONN,
+      params=(unidade_selecionada,),
   )
   professores = df_profs["professor"].tolist()
 
   if not professores:
-    st.warning("Nenhum professor cadastrado no banco de dados.")
+    st.warning(
+        f"Nenhum professor cadastrado para a Unidade {unidade_selecionada}."
+    )
   else:
     prof_selecionado = st.selectbox("👤 Selecione o Professor", professores)
 
     df_turmas_prof = pd.read_sql_query(
         """
-        SELECT MIN(id) as id, nome_turma || ' - ' || dia_semana || ' (' || horario || ')' AS descricao 
+        SELECT MIN(id) as id, nome_turma || ' - ' || horario AS descricao 
         FROM turmas 
-        WHERE professor = ?
-        GROUP BY nome_turma, dia_semana, horario
+        WHERE unidade = ? AND professor = ?
+        GROUP BY nome_turma, horario
         ORDER BY id
         """,
         CONN,
-        params=(prof_selecionado,),
+        params=(unidade_selecionada, prof_selecionado),
     )
 
     if df_turmas_prof.empty:
@@ -349,11 +415,10 @@ if aba_ativa == "📝 Lançamento":
           st.success("✅ Chamada salva com sucesso!")
 
 # ---------------------------------------------------------
-# MÓDULO 2: EXCLUIR / CORRIGIR CHAMADA
+# MÓDULO 2: EXCLUIR / CORRIGIR CHAMADA (FILTRADO POR UNIDADE)
 # ---------------------------------------------------------
 elif aba_ativa == "🗑️ Corrigir":
-  st.subheader("🗑️ Gerenciar e Apagar Chamadas")
-  st.caption("Selecione um registro efetuado incorretamente para remoção.")
+  st.subheader(f"🗑️ Gerenciar Chamadas - Unidade {unidade_selecionada}")
 
   query_ultimos = """
     SELECT 
@@ -366,13 +431,19 @@ elif aba_ativa == "🗑️ Corrigir":
         (p.qtd_alunos - p.qtd_presentes) as Faltas
     FROM presencas p
     JOIN turmas t ON p.turma_id = t.id
+    WHERE t.unidade = ?
     ORDER BY p.id DESC
     LIMIT 50
     """
-  df_chamadas = pd.read_sql_query(query_ultimos, CONN)
+  df_chamadas = pd.read_sql_query(
+      query_ultimos, CONN, params=(unidade_selecionada,)
+  )
 
   if df_chamadas.empty:
-    st.info("Nenhuma chamada registrada no histórico para exclusão.")
+    st.info(
+        "Nenhuma chamada registrada no histórico para esta unidade para"
+        " exclusão."
+    )
   else:
     st.dataframe(df_chamadas, use_container_width=True, hide_index=True)
 
@@ -400,7 +471,7 @@ elif aba_ativa == "🗑️ Corrigir":
       st.rerun()
 
 # ---------------------------------------------------------
-# MÓDULO 3: DASHBOARD DA GESTÃO
+# MÓDULO 3: DASHBOARD DA GESTÃO (FILTRADO POR UNIDADE)
 # ---------------------------------------------------------
 elif aba_ativa == "📊 Dashboard":
   query = """
@@ -416,12 +487,18 @@ elif aba_ativa == "📊 Dashboard":
         strftime('%Y-%m', p.data_aula) as mes_ano
     FROM presencas p
     JOIN turmas t ON p.turma_id = t.id
+    WHERE t.unidade = ?
     ORDER BY p.data_aula DESC
     """
-  df_dados = pd.read_sql_query(query, CONN)
+  df_dados = pd.read_sql_query(
+      query, CONN, params=(unidade_selecionada,)
+  )
 
   if df_dados.empty:
-    st.info("Nenhum lançamento registrado até o momento.")
+    st.info(
+        f"Nenhum lançamento registrado até o momento para a Unidade"
+        f" {unidade_selecionada}."
+    )
   else:
     meses_disponiveis = sorted(df_dados["mes_ano"].unique(), reverse=True)
     mes_selecionado = st.selectbox("Filtrar por Mês/Ano", meses_disponiveis)
@@ -440,7 +517,9 @@ elif aba_ativa == "📊 Dashboard":
     )
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Frequência Média Unidade", f"{freq_media_geral:.1f}%")
+    c1.metric(
+        f"Frequência Média ({unidade_selecionada})", f"{freq_media_geral:.1f}%"
+    )
     c2.metric("Aulas Ministradas", total_aulas)
     c3.metric("Total Alunos Esperados", total_alunos_acum)
     c4.metric("Total Faltas no Mês", total_faltas_acum)
@@ -469,7 +548,10 @@ elif aba_ativa == "📊 Dashboard":
           x="professor",
           y="Frequencia_%",
           text="Frequencia_%",
-          title=f"Taxa de Frequência por Professor ({mes_selecionado})",
+          title=(
+              f"Taxa de Frequência por Professor - {unidade_selecionada}"
+              f" ({mes_selecionado})"
+          ),
           color_discrete_sequence=["#A2D136"],
           labels={"Frequencia_%": "Presença (%)", "professor": "Professor"},
       )
@@ -514,55 +596,50 @@ elif aba_ativa == "📊 Dashboard":
     )
 
 # ---------------------------------------------------------
-# MÓDULO 4: GERENCIAR TURMAS (CADASTRAR, EDITAR E EXCLUIR)
+# MÓDULO 4: GERENCIAR TURMAS (FILTRADO POR UNIDADE)
 # ---------------------------------------------------------
 elif aba_ativa == "⚙️ Gerenciar":
-  st.subheader("⚙️ Cadastro e Gestão de Turmas")
+  st.subheader(f"⚙️ Cadastro e Gestão de Turmas - Unidade {unidade_selecionada}")
 
   # 1. FORMULÁRIO DE NOVA TURMA
-  with st.expander("➕ Cadastrar Nova Turma"):
+  with st.expander(f"➕ Cadastrar Nova Turma na Unidade {unidade_selecionada}"):
     with st.form("form_nova_turma", clear_on_submit=True):
       novo_prof = st.text_input("Nome do Professor").strip().upper()
       nome_turma = st.text_input("Nome/Curso da Turma (Ex: INFORMÁTICA)")
-      dia_semana = st.selectbox(
-          "Dia da Semana",
-          [
-              "Segunda-feira",
-              "Terça-feira",
-              "Quarta-feira",
-              "Quinta-feira",
-              "Sexta-feira",
-              "Sábado",
-          ],
-      )
-      horario = st.text_input("Horário (Ex: 18:30 - 20:30)")
+      horario = st.text_input("Dia e Horário (Ex: SÁBADO 08:30 - 10:30)")
 
       btn_cadastrar = st.form_submit_button("Cadastrar Turma", type="primary")
 
       if btn_cadastrar:
         if novo_prof and nome_turma and horario:
           CURSOR.execute(
-              "INSERT INTO turmas (professor, nome_turma, dia_semana, horario)"
+              "INSERT INTO turmas (unidade, professor, nome_turma, horario)"
               " VALUES (?, ?, ?, ?)",
-              (novo_prof, nome_turma, dia_semana, horario),
+              (unidade_selecionada, novo_prof, nome_turma, horario),
           )
           CONN.commit()
-          st.success(f"Nova turma cadastrada para o professor {novo_prof}!")
+          st.success(
+              f"Nova turma cadastrada na Unidade {unidade_selecionada} para o"
+              f" professor {novo_prof}!"
+          )
           st.rerun()
         else:
           st.error("Preencha todos os campos obrigatórios.")
 
-  # TABELA DE TURMAS CADASTRADAS
+  # TABELA DE TURMAS CADASTRADAS DA UNIDADE
   st.markdown("<br>", unsafe_allow_html=True)
-  st.subheader("Turmas Atualmente Cadastradas")
+  st.subheader(f"Turmas Cadastradas - Unidade {unidade_selecionada}")
   df_todas_turmas = pd.read_sql_query(
-      "SELECT id, professor, nome_turma, dia_semana, horario FROM turmas"
-      " ORDER BY professor, id",
+      "SELECT id, unidade, professor, nome_turma, horario FROM turmas WHERE"
+      " unidade = ? ORDER BY professor, id",
       CONN,
+      params=(unidade_selecionada,),
   )
 
   if df_todas_turmas.empty:
-    st.info("Nenhuma turma cadastrada.")
+    st.info(
+        f"Nenhuma turma cadastrada para a Unidade {unidade_selecionada}."
+    )
   else:
     st.dataframe(df_todas_turmas, use_container_width=True, hide_index=True)
 
@@ -576,7 +653,7 @@ elif aba_ativa == "⚙️ Gerenciar":
         for idx, row in df_todas_turmas.iterrows():
           label = (
               f"ID {row['id']} | {row['professor']} - {row['nome_turma']} "
-              f"({row['dia_semana']} {row['horario']})"
+              f"({row['horario']})"
           )
           dict_turmas_edit[label] = (row["id"], row["professor"])
 
@@ -609,14 +686,14 @@ elif aba_ativa == "⚙️ Gerenciar":
           else:
             st.error("Informe o nome do novo professor.")
 
-    # 3. EXCLUIR TURMA COM TRAVA DE SEGURANÇA
+    # 3. EXCLUIR TURMA
     with col_ed2:
       with st.expander("🗑️ Excluir Turma Cadastrada"):
         dict_turmas_del = {}
         for idx, row in df_todas_turmas.iterrows():
           label = (
               f"ID {row['id']} | {row['professor']} - {row['nome_turma']} "
-              f"({row['dia_semana']} {row['horario']})"
+              f"({row['horario']})"
           )
           dict_turmas_del[label] = row["id"]
 
@@ -632,7 +709,6 @@ elif aba_ativa == "⚙️ Gerenciar":
             " desfeita."
         )
 
-        # Checkbox de Confirmação de Segurança
         confirmacao = st.checkbox(
             "Tenho certeza que desejo EXCLUIR permanentemente esta turma",
             key="check_confirm_del",
@@ -653,8 +729,8 @@ elif aba_ativa == "⚙️ Gerenciar":
   # FERRAMENTA DE MANUTENÇÃO
   st.markdown("---")
   with st.expander("🛠️ Ferramentas de Manutenção do Banco de Dados"):
-    st.caption("Utilize para restaurar a lista inicial de turmas do Excel.")
-    if st.button("🔄 Resetar Tabela para Turmas Iniciais"):
+    st.caption("Utilize para restaurar a lista inicial de turmas das duas unidades.")
+    if st.button("🔄 Resetar Tabela para Turmas Iniciais das Duas Unidades"):
       resetar_turmas_base()
       st.success("Tabela de turmas restaurada para o padrão inicial!")
       st.rerun()
