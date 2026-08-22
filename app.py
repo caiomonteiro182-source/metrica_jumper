@@ -15,7 +15,7 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# ESTILIZAÇÃO CSS PERSONALIZADA (DEGRADÊ + NAVEGAÇÃO AGRUPADA)
+# ESTILIZAÇÃO CSS PERSONALIZADA
 # ---------------------------------------------------------
 st.markdown(
     """
@@ -88,7 +88,7 @@ st.markdown(
         letter-spacing: 0.6px;
     }
 
-    /* Botão Principal de Ação em Verde JUMPER (#A2D136) */
+    /* Botão Principal em Verde JUMPER */
     .stButton > button[kind="primary"] {
         background: linear-gradient(135deg, #A2D136 0%, #8EC328 100%) !important;
         color: #0B0F14 !important;
@@ -197,7 +197,7 @@ def resetar_turmas_base():
 
 
 CURSOR.execute("SELECT COUNT(*) FROM turmas")
-if CURSOR.fetchone()[0] != 25:
+if CURSOR.fetchone()[0] == 0:
   resetar_turmas_base()
 
 # ---------------------------------------------------------
@@ -217,7 +217,7 @@ with col_l2:
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# NAVEGAÇÃO AGRUPADA (RADIO / SEGMENTED CONTROL)
+# NAVEGAÇÃO AGRUPADA
 # ---------------------------------------------------------
 opcoes_menu = [
     "📝 Lançamento",
@@ -233,7 +233,7 @@ aba_ativa = st.segmented_control(
 st.markdown("---")
 
 # ---------------------------------------------------------
-# MÓDULO 1: LANÇAMENTO DE PRESENÇA (PROFESSOR)
+# MÓDULO 1: LANÇAMENTO DE PRESENÇA
 # ---------------------------------------------------------
 if aba_ativa == "📝 Lançamento":
   df_profs = pd.read_sql_query(
@@ -514,11 +514,12 @@ elif aba_ativa == "📊 Dashboard":
     )
 
 # ---------------------------------------------------------
-# MÓDULO 4: GERENCIAR TURMAS + MANUTENÇÃO
+# MÓDULO 4: GERENCIAR TURMAS (CADASTRAR, EDITAR E EXCLUIR)
 # ---------------------------------------------------------
 elif aba_ativa == "⚙️ Gerenciar":
   st.subheader("⚙️ Cadastro e Gestão de Turmas")
 
+  # 1. FORMULÁRIO DE NOVA TURMA
   with st.expander("➕ Cadastrar Nova Turma"):
     with st.form("form_nova_turma", clear_on_submit=True):
       novo_prof = st.text_input("Nome do Professor").strip().upper()
@@ -551,19 +552,92 @@ elif aba_ativa == "⚙️ Gerenciar":
         else:
           st.error("Preencha todos os campos obrigatórios.")
 
+  # TABELA DE TURMAS CADASTRADAS
   st.markdown("<br>", unsafe_allow_html=True)
   st.subheader("Turmas Atualmente Cadastradas")
   df_todas_turmas = pd.read_sql_query(
       "SELECT id, professor, nome_turma, dia_semana, horario FROM turmas"
-      " ORDER BY professor",
+      " ORDER BY professor, id",
       CONN,
   )
-  st.dataframe(df_todas_turmas, use_container_width=True, hide_index=True)
 
+  if df_todas_turmas.empty:
+    st.info("Nenhuma turma cadastrada.")
+  else:
+    st.dataframe(df_todas_turmas, use_container_width=True, hide_index=True)
+
+    st.markdown("---")
+    col_ed1, col_ed2 = st.columns(2)
+
+    # 2. EDITAR PROFESSOR DA TURMA
+    with col_ed1:
+      with st.expander("✏️ Alterar Professor da Turma"):
+        dict_turmas_edit = {}
+        for idx, row in df_todas_turmas.iterrows():
+          label = (
+              f"ID {row['id']} | {row['professor']} - {row['nome_turma']} "
+              f"({row['dia_semana']} {row['horario']})"
+          )
+          dict_turmas_edit[label] = (row["id"], row["professor"])
+
+        turma_para_editar = st.selectbox(
+            "Selecione a turma para alterar o professor:",
+            list(dict_turmas_edit.keys()),
+            key="select_edit_prof",
+        )
+        id_turma_edit, prof_atual = dict_turmas_edit[turma_para_editar]
+
+        novo_prof_nome = (
+            st.text_input(
+                "Novo Nome do Professor",
+                value=prof_atual,
+                key="input_novo_prof_nome",
+            )
+            .strip()
+            .upper()
+        )
+
+        if st.button("💾 Salvar Alteração de Professor", type="primary"):
+          if novo_prof_nome:
+            CURSOR.execute(
+                "UPDATE turmas SET professor = ? WHERE id = ?",
+                (novo_prof_nome, id_turma_edit),
+            )
+            CONN.commit()
+            st.success("✅ Professor alterado com sucesso!")
+            st.rerun()
+          else:
+            st.error("Informe o nome do novo professor.")
+
+    # 3. EXCLUIR TURMA
+    with col_ed2:
+      with st.expander("🗑️ Excluir Turma Cadastrada"):
+        dict_turmas_del = {}
+        for idx, row in df_todas_turmas.iterrows():
+          label = (
+              f"ID {row['id']} | {row['professor']} - {row['nome_turma']} "
+              f"({row['dia_semana']} {row['horario']})"
+          )
+          dict_turmas_del[label] = row["id"]
+
+        turma_para_deletar = st.selectbox(
+            "Selecione a turma que deseja EXCLUIR:",
+            list(dict_turmas_del.keys()),
+            key="select_del_turma",
+        )
+        id_turma_del = dict_turmas_del[turma_para_deletar]
+
+        if st.button("❌ Confirmar Exclusão da Turma", type="primary"):
+          CURSOR.execute("DELETE FROM turmas WHERE id = ?", (id_turma_del,))
+          CONN.commit()
+          st.success("✅ Turma excluída com sucesso!")
+          st.rerun()
+
+  # FERRAMENTA DE MANUTENÇÃO
   st.markdown("---")
   with st.expander("🛠️ Ferramentas de Manutenção do Banco de Dados"):
-    st.caption("Utilize para remover turmas duplicadas da lista.")
-    if st.button("🔄 Resetar e Limpar Tabela de Turmas"):
+    st.caption("Utilize para restaurar a lista inicial de turmas do Excel.")
+    if st.button("🔄 Resetar Tabela para Turmas Iniciais"):
       resetar_turmas_base()
-      st.success("Tabela restaurada sem duplicados!")
+      st.success("Tabela de turmas restaurada para o padrão inicial!")
       st.rerun()
