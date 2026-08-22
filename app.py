@@ -112,7 +112,7 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# 1. BANCO DE DADOS (Criação e Conexão)
+# 1. BANCO DE DADOS (Criação, Conexão e Auto-Sincronização)
 # ---------------------------------------------------------
 CONN = sqlite3.connect("jumper_presenca.db", check_same_thread=False)
 CURSOR = CONN.cursor()
@@ -139,42 +139,48 @@ CREATE TABLE IF NOT EXISTS presencas (
 """)
 CONN.commit()
 
-# Carga das 25 Turmas Reais dos 12 Professores extraídas da Planilha Excel
-CURSOR.execute("SELECT COUNT(*) FROM turmas")
-if CURSOR.fetchone()[0] == 0:
-  turmas_iniciais = [
-      ("ALINE", "Turma ALINE", "Quinta-feira", "19:00 - 21:00"),
-      ("CAIO", "Turma CAIO - 1", "Sábado", "08:30 às 10:30"),
-      ("CAIO", "Turma CAIO - 2", "Sábado", "10:30 às 12:30"),
-      ("CAIO", "Turma CAIO - 3", "Terça-feira", "19:00 às 21:00"),
-      ("HELLEN", "Turma HELLEN", "Quarta-feira", "18:30 - 20:30"),
-      ("SAMUEL", "Turma SAMUEL", "Sábado", "08:30"),
-      ("JULIA", "Turma JULIA", "Sábado", "10:30 às 12:30"),
-      ("JURANDIR", "Turma JURANDIR - 1", "Terça-feira", "14:00 às 16:00"),
-      ("JURANDIR", "Turma JURANDIR - 2", "Terça-feira", "16:00 às 18:00"),
-      ("JURANDIR", "Turma JURANDIR - 3", "Quarta-feira", "14:00 às 16:00"),
-      ("KELLY", "Turma KELLY - 1", "Sábado", "08:30 - 10:30"),
-      ("KELLY", "Turma KELLY - 2", "Sábado", "10:30 - 12:30"),
-      ("KELLY", "Turma KELLY - 3", "Sábado", "13:00 às 15:00"),
-      ("KELLY", "Turma KELLY - 4", "Sábado", "16:00 às 18:00"),
-      ("MENUHA", "Turma MENUHA", "Sábado", "10:30"),
-      ("NAYANE", "Turma NAYANE - 1", "Quarta-feira", "09:00 - 11:00"),
-      ("NAYANE", "Turma NAYANE - 2", "Quarta-feira", "16:00 - 18:00"),
-      ("NAYANE", "Turma NAYANE - 3", "Quarta-feira", "19:00 - 21:00"),
-      ("NAYANE", "Turma NAYANE - 4", "Sábado", "13:00 - 15:00"),
-      ("DAVI", "Turma DAVI", "Segunda-feira", "19:00 - 21:00"),
-      ("TULIO", "Turma TULIO - 1", "Sábado", "08:30 - 10:30"),
-      ("TULIO", "Turma TULIO - 2", "Sábado", "10:30 - 12:30"),
-      ("TULIO", "Turma TULIO - 3", "Quarta-feira", "19:00 - 21:00"),
-      ("VINICIUS", "Turma VINICIUS - 1", "Sábado", "10:30"),
-      ("VINICIUS", "Turma VINICIUS - 2", "Quinta-feira", "09:00"),
-  ]
-  CURSOR.executemany(
-      "INSERT INTO turmas (professor, nome_turma, dia_semana, horario) VALUES"
-      " (?, ?, ?, ?)",
-      turmas_iniciais,
+# Lista Completa dos 12 Professores e 25 Turmas Reais da Planilha
+turmas_completas = [
+    ("ALINE", "Turma ALINE", "Quinta-feira", "19:00 - 21:00"),
+    ("CAIO", "Turma CAIO - 1", "Sábado", "08:30 às 10:30"),
+    ("CAIO", "Turma CAIO - 2", "Sábado", "10:30 às 12:30"),
+    ("CAIO", "Turma CAIO - 3", "Terça-feira", "19:00 às 21:00"),
+    ("HELLEN", "Turma HELLEN", "Quarta-feira", "18:30 - 20:30"),
+    ("SAMUEL", "Turma SAMUEL", "Sábado", "08:30"),
+    ("JULIA", "Turma JULIA", "Sábado", "10:30 às 12:30"),
+    ("JURANDIR", "Turma JURANDIR - 1", "Terça-feira", "14:00 às 16:00"),
+    ("JURANDIR", "Turma JURANDIR - 2", "Terça-feira", "16:00 às 18:00"),
+    ("JURANDIR", "Turma JURANDIR - 3", "Quarta-feira", "14:00 às 16:00"),
+    ("KELLY", "Turma KELLY - 1", "Sábado", "08:30 - 10:30"),
+    ("KELLY", "Turma KELLY - 2", "Sábado", "10:30 - 12:30"),
+    ("KELLY", "Turma KELLY - 3", "Sábado", "13:00 às 15:00"),
+    ("KELLY", "Turma KELLY - 4", "Sábado", "16:00 às 18:00"),
+    ("MENUHA", "Turma MENUHA", "Sábado", "10:30"),
+    ("NAYANE", "Turma NAYANE - 1", "Quarta-feira", "09:00 - 11:00"),
+    ("NAYANE", "Turma NAYANE - 2", "Quarta-feira", "16:00 - 18:00"),
+    ("NAYANE", "Turma NAYANE - 3", "Quarta-feira", "19:00 - 21:00"),
+    ("NAYANE", "Turma NAYANE - 4", "Sábado", "13:00 - 15:00"),
+    ("DAVI", "Turma DAVI", "Segunda-feira", "19:00 - 21:00"),
+    ("TULIO", "Turma TULIO - 1", "Sábado", "08:30 - 10:30"),
+    ("TULIO", "Turma TULIO - 2", "Sábado", "10:30 - 12:30"),
+    ("TULIO", "Turma TULIO - 3", "Quarta-feira", "19:00 - 21:00"),
+    ("VINICIUS", "Turma VINICIUS - 1", "Sábado", "10:30"),
+    ("VINICIUS", "Turma VINICIUS - 2", "Quinta-feira", "09:00"),
+]
+
+# Sincronização Inteligente: Adiciona apenas o que ainda não estiver cadastrado no banco
+for prof, turma, dia, hora in turmas_completas:
+  CURSOR.execute(
+      "SELECT COUNT(*) FROM turmas WHERE professor = ? AND nome_turma = ?",
+      (prof, turma),
   )
-  CONN.commit()
+  if CURSOR.fetchone()[0] == 0:
+    CURSOR.execute(
+        "INSERT INTO turmas (professor, nome_turma, dia_semana, horario)"
+        " VALUES (?, ?, ?, ?)",
+        (prof, turma, dia, hora),
+    )
+CONN.commit()
 
 # ---------------------------------------------------------
 # 2. BARRA LATERAL (MENU)
