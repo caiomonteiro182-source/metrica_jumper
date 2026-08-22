@@ -5,8 +5,8 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-# Configuração da Página e Favicon (Sidebar Recolhida por Padrão)
-fav_icon = "logoj.png" if os.path.exists("logoj.png") else "📚"
+# Configuração da Página e Favicon
+fav_icon = "logo.png" if os.path.exists("logo.png") else "📚"
 st.set_page_config(
     page_title="Gestão de Presença | JUMPER",
     page_icon=fav_icon,
@@ -15,12 +15,12 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# ESTILIZAÇÃO CSS PERSONALIZADA (DARK MODE + JUMPER GREEN)
+# ESTILIZAÇÃO CSS AVANÇADA (DEGRADÊ TEMÁTICO + MOBILE-FRIENDLY)
 # ---------------------------------------------------------
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
@@ -31,34 +31,57 @@ st.markdown(
         display: none !important;
     }
     
+    /* Fundo com Degradê inspirado nas cores da JUMPER */
     .stApp {
-        background-color: #0E1318;
-        color: #F1F5F9;
+        background: linear-gradient(135deg, #090D12 0%, #111822 50%, #1A2433 100%);
+        color: #F8FAFC;
     }
     
-    /* Botões do Menu Superior na Tela (Mobile Friendly) */
+    /* Centralização do Logo Principal */
+    .logo-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px 0 20px 0;
+    }
+    
+    /* Container dos Botões de Navegação Juntos e Centralizados */
+    .nav-buttons-container {
+        max-width: 600px;
+        margin: 0 auto 25px auto;
+        padding: 6px;
+        background: rgba(22, 30, 41, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Estilização dos Botões de Aba */
     div[data-testid="stHorizontalBlock"] button {
-        background-color: #161C23 !important;
-        border: 2px solid #232D38 !important;
-        color: #F1F5F9 !important;
+        background: rgba(30, 41, 56, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        color: #CBD5E1 !important;
         font-weight: 700 !important;
-        font-size: 14px !important;
+        font-size: 13px !important;
         border-radius: 10px !important;
-        padding: 0.6rem 0.5rem !important;
+        padding: 0.55rem 0.4rem !important;
         width: 100% !important;
-        transition: all 0.2s ease-in-out;
+        transition: all 0.25s ease-in-out;
     }
     
     div[data-testid="stHorizontalBlock"] button:hover {
+        background: rgba(162, 209, 54, 0.15) !important;
         border-color: #A2D136 !important;
         color: #A2D136 !important;
+        transform: translateY(-1px);
     }
     
-    /* Destaque das Caixas de Seleção e Inputs */
+    /* Destaque para Caixas de Seleção e Inputs */
     div[data-baseweb="select"] > div, div[data-baseweb="input"] input {
-        background-color: #1E2630 !important;
-        border: 2px solid #334155 !important;
-        border-radius: 8px !important;
+        background-color: #151D28 !important;
+        border: 1.5px solid #2A3648 !important;
+        border-radius: 10px !important;
         color: #FFFFFF !important;
         font-weight: 600 !important;
         font-size: 15px !important;
@@ -68,39 +91,42 @@ st.markdown(
         border-color: #A2D136 !important;
     }
     
+    /* Rótulos com Destaque Verde JUMPER */
     label {
         color: #A2D136 !important;
         font-weight: 700 !important;
-        font-size: 14px !important;
+        font-size: 13px !important;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.6px;
     }
 
-    /* Botão Principal de Ação */
+    /* Botão Principal de Ação em Verde JUMPER (#A2D136) */
     .stButton > button[kind="primary"] {
-        background-color: #A2D136 !important;
-        color: #0E1318 !important;
+        background: linear-gradient(135deg, #A2D136 0%, #8EC328 100%) !important;
+        color: #0B0F14 !important;
         font-weight: 800 !important;
-        border-radius: 8px !important;
+        border-radius: 10px !important;
         border: none !important;
-        padding: 0.7rem 1.6rem !important;
+        padding: 0.75rem 1.8rem !important;
         font-size: 16px !important;
-        transition: all 0.2s ease-in-out;
-        box-shadow: 0 4px 15px rgba(162, 209, 54, 0.3);
+        transition: all 0.25s ease-in-out;
+        box-shadow: 0 4px 20px rgba(162, 209, 54, 0.35);
+        width: 100%;
     }
     
     .stButton > button[kind="primary"]:hover {
-        background-color: #B5E249 !important;
+        background: linear-gradient(135deg, #B2E246 0%, #9ED432 100%) !important;
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(162, 209, 54, 0.45);
+        box-shadow: 0 6px 25px rgba(162, 209, 54, 0.5);
     }
     
     /* Cards de Métricas no Dashboard */
     [data-testid="stMetric"] {
-        background-color: #161C23;
-        border: 1px solid #232D38;
-        padding: 16px 20px;
-        border-radius: 12px;
+        background: rgba(22, 30, 41, 0.8);
+        border: 1px solid rgba(162, 209, 54, 0.2);
+        padding: 18px 22px;
+        border-radius: 14px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25);
     }
     
     [data-testid="stMetricValue"] {
@@ -116,7 +142,7 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# 1. BANCO DE DADOS (Criação e Inicialização)
+# 1. BANCO DE DADOS (Criação e Conexão)
 # ---------------------------------------------------------
 CONN = sqlite3.connect("jumper_presenca.db", check_same_thread=False)
 CURSOR = CONN.cursor()
@@ -171,6 +197,7 @@ TURMAS_BASE_EXCEL = [
     ("VINICIUS", "GESTÃO - T2", "Quinta-feira", "09:00"),
 ]
 
+
 def resetar_turmas_base():
   CURSOR.execute("DELETE FROM turmas")
   CURSOR.executemany(
@@ -180,35 +207,34 @@ def resetar_turmas_base():
   )
   CONN.commit()
 
+
 CURSOR.execute("SELECT COUNT(*) FROM turmas")
 if CURSOR.fetchone()[0] != 25:
   resetar_turmas_base()
 
 # ---------------------------------------------------------
-# CABEÇALHO COM LOGO COMPLETA "JUMPER!"
+# CABEÇALHO COM LOGO CENTRALIZADO
 # ---------------------------------------------------------
-col_top1, col_top2 = st.columns([4, 1])
-with col_top1:
+col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
+with col_l2:
   if os.path.exists("logo.png"):
-    st.image("logo.png", width=220)
+    st.image("logo.png", use_container_width=True)
   else:
     st.markdown(
-        "<h1 style='color:#A2D136; font-weight:800; margin:0;'>JUMPER!</h1>",
+        "<h1 style='text-align: center; color:#A2D136; font-weight:800;"
+        " margin:0;'>JUMPER!</h1>",
         unsafe_allow_html=True,
     )
-with col_top2:
-  if os.path.exists("logoj.png"):
-    st.image("logoj.png", width=60)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# MENU DE NAVEGAÇÃO POR BOTÕES NA TELA (MOBILE-FRIENDLY)
+# NAVEGAÇÃO COMPACTA POR BOTÕES CENTRALIZADOS
 # ---------------------------------------------------------
 if "aba_ativa" not in st.session_state:
   st.session_state.aba_ativa = "📝 Lançamento"
 
-col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+col_m1, col_m2, col_m3, col_m4 = st.columns([1, 1, 1, 1])
 
 with col_m1:
   if st.button("📝 Lançamento"):
@@ -319,7 +345,7 @@ if st.session_state.aba_ativa == "📝 Lançamento":
                 background-color: {bg_box};
                 border-left: 5px solid {border_color};
                 padding: 16px 20px;
-                border-radius: 8px;
+                border-radius: 10px;
                 margin-top: 15px;
                 margin-bottom: 25px;
             ">
