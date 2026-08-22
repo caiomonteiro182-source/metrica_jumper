@@ -114,7 +114,7 @@ if menu == "📝 Lançamento de Aula":
         total_alunos = st.number_input(
             "Total de Alunos da Turma",
             min_value=1,
-            value=19,
+            value=20,
             step=1,
             key="input_total_alunos",
         )
@@ -124,27 +124,25 @@ if menu == "📝 Lançamento de Aula":
             "Quantidade de Presentes",
             min_value=0,
             max_value=int(total_alunos),
-            value=min(17, int(total_alunos)),
+            value=min(8, int(total_alunos)),
             step=1,
             key="input_total_presentes",
         )
 
-      # Validação e Cálculo do Percentual
+      # Validação e Exibição Apenas da Porcentagem de Frequência
       if total_presentes > total_alunos:
         st.error(
             f"❌ Erro: O número de presentes ({total_presentes}) não pode ser"
             f" maior do que o total de alunos na turma ({total_alunos})."
         )
       else:
-        faltas_calculadas = total_alunos - total_presentes
         porcentagem_presenca = (
             (total_presentes / total_alunos) * 100 if total_alunos > 0 else 0
         )
 
         st.info(
-            f"📊 **Resumo:** {total_presentes} Presentes | {faltas_calculadas}"
-            f" Faltas | **Frequência: {porcentagem_presenca:.1f}%** (Total da"
-            f" turma: {total_alunos} alunos)"
+            f"📊 **Resumo:** **Frequência: {porcentagem_presenca:.1f}%** (Total"
+            f" da turma: {total_alunos} alunos)"
         )
 
         if st.button("💾 Salvar Chamada", type="primary"):
