@@ -123,10 +123,19 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# 1. BANCO DE DADOS (Suporte Multi-Unidade)
+# 1. BANCO DE DADOS (Com Migração Automática)
 # ---------------------------------------------------------
 CONN = sqlite3.connect("jumper_presenca.db", check_same_thread=False)
 CURSOR = CONN.cursor()
+
+# Verifica se a tabela turmas existe e se possui a coluna 'unidade'
+CURSOR.execute("PRAGMA table_info(turmas)")
+colunas_turmas = [row[1] for row in CURSOR.fetchall()]
+
+# Se a tabela não tiver a coluna 'unidade', recria a tabela para o novo modelo
+if colunas_turmas and "unidade" not in colunas_turmas:
+  CURSOR.execute("DROP TABLE IF EXISTS turmas")
+  CONN.commit()
 
 CURSOR.execute("""
 CREATE TABLE IF NOT EXISTS turmas (
@@ -490,9 +499,7 @@ elif aba_ativa == "📊 Dashboard":
     WHERE t.unidade = ?
     ORDER BY p.data_aula DESC
     """
-  df_dados = pd.read_sql_query(
-      query, CONN, params=(unidade_selecionada,)
-  )
+  df_dados = pd.read_sql_query(query, CONN, params=(unidade_selecionada,))
 
   if df_dados.empty:
     st.info(
@@ -599,7 +606,9 @@ elif aba_ativa == "📊 Dashboard":
 # MÓDULO 4: GERENCIAR TURMAS (FILTRADO POR UNIDADE)
 # ---------------------------------------------------------
 elif aba_ativa == "⚙️ Gerenciar":
-  st.subheader(f"⚙️ Cadastro e Gestão de Turmas - Unidade {unidade_selecionada}")
+  st.subheader(
+      f"⚙️ Cadastro e Gestão de Turmas - Unidade {unidade_selecionada}"
+  )
 
   # 1. FORMULÁRIO DE NOVA TURMA
   with st.expander(f"➕ Cadastrar Nova Turma na Unidade {unidade_selecionada}"):
@@ -637,9 +646,7 @@ elif aba_ativa == "⚙️ Gerenciar":
   )
 
   if df_todas_turmas.empty:
-    st.info(
-        f"Nenhuma turma cadastrada para a Unidade {unidade_selecionada}."
-    )
+    st.info(f"Nenhuma turma cadastrada para a Unidade {unidade_selecionada}.")
   else:
     st.dataframe(df_todas_turmas, use_container_width=True, hide_index=True)
 
@@ -686,7 +693,7 @@ elif aba_ativa == "⚙️ Gerenciar":
           else:
             st.error("Informe o nome do novo professor.")
 
-    # 3. EXCLUIR TURMA
+    # 3. EXCLUIR TURMA COM CONFIRMAÇÃO
     with col_ed2:
       with st.expander("🗑️ Excluir Turma Cadastrada"):
         dict_turmas_del = {}
@@ -729,7 +736,9 @@ elif aba_ativa == "⚙️ Gerenciar":
   # FERRAMENTA DE MANUTENÇÃO
   st.markdown("---")
   with st.expander("🛠️ Ferramentas de Manutenção do Banco de Dados"):
-    st.caption("Utilize para restaurar a lista inicial de turmas das duas unidades.")
+    st.caption(
+        "Utilize para restaurar a lista inicial de turmas das duas unidades."
+    )
     if st.button("🔄 Resetar Tabela para Turmas Iniciais das Duas Unidades"):
       resetar_turmas_base()
       st.success("Tabela de turmas restaurada para o padrão inicial!")
