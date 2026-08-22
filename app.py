@@ -15,98 +15,95 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# ESTILIZAÇÃO CSS PERSONALIZADA (Inspirada no portal JUMPER)
+# ESTILIZAÇÃO CSS PERSONALIZADA (DARK MODE + JUMPER GREEN)
 # ---------------------------------------------------------
 st.markdown(
     """
     <style>
-    /* Fontes e Fundo Claro Moderno */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
     }
     
+    /* Fundo Escuro Moderno */
     .stApp {
-        background-color: #F8FAFC;
-        color: #1E293B;
+        background-color: #0E1318;
+        color: #F1F5F9;
     }
     
-    /* Barra Lateral Estilizada em Azul/Grafite Institucional */
+    /* Barra Lateral Escura */
     section[data-testid="stSidebar"] {
-        background-color: #0F172A !important;
-        border-right: 1px solid #E2E8F0;
+        background-color: #161C23 !important;
+        border-right: 1px solid #232D38;
     }
     
-    section[data-testid="stSidebar"] * {
-        color: #F8FAFC !important;
-    }
-    
-    /* Cards Brancos com Sombra Suave */
+    /* Cards Escuros Estilizados */
     .jumper-card {
-        background-color: #FFFFFF;
+        background-color: #161C23;
         border-radius: 12px;
         padding: 24px;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.03);
+        border: 1px solid #232D38;
+        box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.25);
         margin-bottom: 20px;
     }
     
-    /* Header Institucional da Marca */
-    .jumper-header {
-        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-        padding: 24px 32px;
-        border-radius: 16px;
-        color: white;
-        margin-bottom: 25px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+    /* Destaque das Caixas de Seleção e Inputs (Alta Visibilidade para os Professores) */
+    div[data-baseweb="select"] > div, div[data-baseweb="input"] input {
+        background-color: #1E2630 !important;
+        border: 2px solid #334155 !important;
+        border-radius: 8px !important;
+        color: #FFFFFF !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
     }
     
-    /* Botões em Verde JUMPER (#A2D136) */
+    div[data-baseweb="select"]:hover > div, div[data-baseweb="input"]:hover input {
+        border-color: #A2D136 !important;
+    }
+    
+    /* Rótulos das Caixas de Entrada */
+    label {
+        color: #A2D136 !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Botão Principal em Verde JUMPER (#A2D136) */
     .stButton > button[kind="primary"] {
         background-color: #A2D136 !important;
-        color: #0F172A !important;
-        font-weight: 700 !important;
+        color: #0E1318 !important;
+        font-weight: 800 !important;
         border-radius: 8px !important;
         border: none !important;
-        padding: 0.6rem 1.4rem !important;
-        font-size: 15px !important;
+        padding: 0.7rem 1.6rem !important;
+        font-size: 16px !important;
         transition: all 0.2s ease-in-out;
-        box-shadow: 0 4px 12px rgba(162, 209, 54, 0.25);
+        box-shadow: 0 4px 15px rgba(162, 209, 54, 0.3);
     }
     
     .stButton > button[kind="primary"]:hover {
-        background-color: #8EB92D !important;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(162, 209, 54, 0.35);
-    }
-
-    /* Ajuste de Inputs e Caixas de Seleção */
-    div[data-baseweb="input"] input, div[data-baseweb="select"] > div {
-        background-color: #FFFFFF !important;
-        border-radius: 8px !important;
-        border: 1px solid #CBD5E1 !important;
-        color: #0F172A !important;
+        background-color: #B5E249 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(162, 209, 54, 0.45);
     }
     
-    /* Customização dos Cards de Métricas (st.metric) */
+    /* Cards de Métricas (st.metric) no Dashboard */
     [data-testid="stMetric"] {
-        background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
+        background-color: #161C23;
+        border: 1px solid #232D38;
         padding: 16px 20px;
         border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
     }
     
     [data-testid="stMetricValue"] {
-        color: #0F172A !important;
-        font-weight: 700 !important;
+        color: #A2D136 !important;
+        font-weight: 800 !important;
     }
-    
-    /* Ocultar menus padrão do Streamlit */
+
+    /* Ocultar elementos padrão */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     </style>
@@ -163,7 +160,7 @@ if CURSOR.fetchone()[0] == 0:
   CONN.commit()
 
 # ---------------------------------------------------------
-# 2. NAV E BARRA LATERAL
+# 2. BARRA LATERAL (MENU)
 # ---------------------------------------------------------
 with st.sidebar:
   if os.path.exists("logo.png"):
@@ -176,7 +173,7 @@ with st.sidebar:
 
   st.markdown("<br>", unsafe_allow_html=True)
   menu = st.radio(
-      "NAVEGAÇÃO",
+      "MENU PRINCIPAL",
       [
           "📝 Lançamento de Aula",
           "🗑️ Excluir / Corrigir Chamada",
@@ -188,29 +185,28 @@ with st.sidebar:
   st.caption("JUMPER Profissões e Idiomas © 2026")
 
 # ---------------------------------------------------------
-# HEADER INSTITUCIONAL NO TOPO
+# TOPO COM A LOGO "J!" E TÍTULO
 # ---------------------------------------------------------
-col_h1, col_h2 = st.columns([4, 1])
-with col_h1:
+col_header1, col_header2 = st.columns([5, 1])
+with col_header1:
   st.markdown(
       """
-        <div style="margin-bottom: 20px;">
-            <h1 style="color: #0F172A; font-weight: 800; font-size: 2.2rem; margin: 0;">Portal de Frequência Acadêmica</h1>
-            <p style="color: #64748B; font-size: 1.05rem; margin-top: 4px;">Acompanhamento pedagógico de turmas e controle de presença da unidade.</p>
+        <div style="margin-bottom: 15px;">
+            <h1 style="color: #FFFFFF; font-weight: 800; font-size: 2.2rem; margin: 0;">Frequência de Turmas</h1>
+            <p style="color: #94A3B8; font-size: 1.05rem; margin-top: 4px;">Sistema de lançamento diário de presença e métricas pedagógicas</p>
         </div>
         """,
       unsafe_allow_html=True,
   )
-with col_h2:
+with col_header2:
   if os.path.exists("logoj.png"):
-    st.image("logoj.png", width=75)
+    st.image("logoj.png", width=70)
 
 # ---------------------------------------------------------
 # MÓDULO 1: LANÇAMENTO DE PRESENÇA (PROFESSOR)
 # ---------------------------------------------------------
 if menu == "📝 Lançamento de Aula":
   st.markdown('<div class="jumper-card">', unsafe_allow_html=True)
-  st.subheader("📝 Lançamento de Chamada Diária")
 
   df_profs = pd.read_sql_query(
       "SELECT DISTINCT professor FROM turmas ORDER BY professor", CONN
@@ -220,7 +216,10 @@ if menu == "📝 Lançamento de Aula":
   if not professores:
     st.warning("Nenhum professor cadastrado no banco de dados.")
   else:
-    prof_selecionado = st.selectbox("Selecione o Professor", professores)
+    # Seleção visível do Professor
+    prof_selecionado = st.selectbox(
+        "👤 Selecione o Professor", professores, index=0
+    )
 
     df_turmas_prof = pd.read_sql_query(
         "SELECT id, nome_turma || ' (' || dia_semana || ' ' || horario || ')'"
@@ -236,15 +235,17 @@ if menu == "📝 Lançamento de Aula":
           zip(df_turmas_prof["descricao"], df_turmas_prof["id"])
       )
 
-      turma_desc = st.selectbox("Selecione a Turma", list(opcoes_turmas.keys()))
+      turma_desc = st.selectbox(
+          "📚 Selecione a Turma", list(opcoes_turmas.keys())
+      )
       turma_id = opcoes_turmas[turma_desc]
 
-      data_aula = st.date_input("Data da Aula", value=datetime.date.today())
+      data_aula = st.date_input("📅 Data da Aula", value=datetime.date.today())
 
       col1, col2 = st.columns(2)
       with col1:
         total_alunos = st.number_input(
-            "Total de Alunos da Turma",
+            "👥 Total de Alunos da Turma",
             min_value=1,
             value=20,
             step=1,
@@ -253,7 +254,7 @@ if menu == "📝 Lançamento de Aula":
 
       with col2:
         total_presentes = st.number_input(
-            "Quantidade de Presentes",
+            "✅ Quantidade de Presentes",
             min_value=0,
             max_value=int(total_alunos),
             value=min(16, int(total_alunos)),
@@ -261,6 +262,7 @@ if menu == "📝 Lançamento de Aula":
             key="input_total_presentes",
         )
 
+      # Validação e Cálculo do Percentual
       if total_presentes > total_alunos:
         st.error(
             f"❌ Erro: O número de presentes ({total_presentes}) não pode ser"
@@ -271,13 +273,14 @@ if menu == "📝 Lançamento de Aula":
             (total_presentes / total_alunos) * 100 if total_alunos > 0 else 0
         )
 
+        # Regra de Cor: Vermelho para <80%, Verde (#A2D136) para >=80%
         if porcentagem_presenca < 80.0:
-          cor_texto = "#DC2626"  # Vermelho
-          bg_box = "#FEF2F2"
-          border_color = "#EF4444"
+          cor_texto = "#FF4B4B"
+          bg_box = "rgba(255, 75, 75, 0.15)"
+          border_color = "#FF4B4B"
         else:
-          cor_texto = "#15803D"  # Verde
-          bg_box = "#F0FDF4"
+          cor_texto = "#A2D136"
+          bg_box = "rgba(162, 209, 54, 0.15)"
           border_color = "#A2D136"
 
         st.markdown(
@@ -286,14 +289,14 @@ if menu == "📝 Lançamento de Aula":
                 background-color: {bg_box};
                 border-left: 5px solid {border_color};
                 padding: 16px 20px;
-                border-radius: 10px;
+                border-radius: 8px;
                 margin-top: 15px;
                 margin-bottom: 25px;
             ">
                 <span style="font-size: 18px; font-weight: 700; color: {cor_texto};">
                     📊 Resumo: Frequência: {porcentagem_presenca:.1f}%
                 </span>
-                <span style="font-size: 15px; color: #475569; margin-left: 10px;">
+                <span style="font-size: 15px; color: #CBD5E1; margin-left: 10px;">
                     (Total da turma: {total_alunos} alunos)
                 </span>
             </div>
@@ -410,7 +413,6 @@ elif menu == "📊 Dashboard da Gestão":
         else 0
     )
 
-    # Indicadores
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Frequência Média Unidade", f"{freq_media_geral:.1f}%")
     c2.metric("Aulas Ministradas", total_aulas)
@@ -454,7 +456,7 @@ elif menu == "📊 Dashboard da Gestão":
       fig.update_layout(
           plot_bgcolor="rgba(0,0,0,0)",
           paper_bgcolor="rgba(0,0,0,0)",
-          font_color="#0F172A",
+          font_color="#F1F5F9",
           yaxis_range=[0, 105],
           margin=dict(l=10, r=10, t=40, b=10),
       )
