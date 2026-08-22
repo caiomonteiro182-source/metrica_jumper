@@ -609,7 +609,7 @@ elif aba_ativa == "⚙️ Gerenciar":
           else:
             st.error("Informe o nome do novo professor.")
 
-    # 3. EXCLUIR TURMA
+    # 3. EXCLUIR TURMA COM TRAVA DE SEGURANÇA
     with col_ed2:
       with st.expander("🗑️ Excluir Turma Cadastrada"):
         dict_turmas_del = {}
@@ -627,11 +627,28 @@ elif aba_ativa == "⚙️ Gerenciar":
         )
         id_turma_del = dict_turmas_del[turma_para_deletar]
 
+        st.warning(
+            "⚠️ **Atenção:** Ao excluir uma turma, essa ação não poderá ser"
+            " desfeita."
+        )
+
+        # Checkbox de Confirmação de Segurança
+        confirmacao = st.checkbox(
+            "Tenho certeza que desejo EXCLUIR permanentemente esta turma",
+            key="check_confirm_del",
+        )
+
         if st.button("❌ Confirmar Exclusão da Turma", type="primary"):
-          CURSOR.execute("DELETE FROM turmas WHERE id = ?", (id_turma_del,))
-          CONN.commit()
-          st.success("✅ Turma excluída com sucesso!")
-          st.rerun()
+          if confirmacao:
+            CURSOR.execute("DELETE FROM turmas WHERE id = ?", (id_turma_del,))
+            CONN.commit()
+            st.success("✅ Turma excluída com sucesso!")
+            st.rerun()
+          else:
+            st.error(
+                "Por favor, marque a caixa de confirmação acima para autorizar"
+                " a exclusão."
+            )
 
   # FERRAMENTA DE MANUTENÇÃO
   st.markdown("---")
