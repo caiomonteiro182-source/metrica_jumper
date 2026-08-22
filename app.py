@@ -5,7 +5,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-# Configuração da Página e Favicon da Guia (logoj.png)
+# Configuração da Página
 fav_icon = "logoj.png" if os.path.exists("logoj.png") else "📚"
 st.set_page_config(
     page_title="Gestão de Presença | JUMPER",
@@ -123,43 +123,8 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# 1. BANCO DE DADOS (Com Migração Automática)
-# ---------------------------------------------------------
-CONN = sqlite3.connect("jumper_presenca.db", check_same_thread=False)
-CURSOR = CONN.cursor()
-
-# Verifica se a tabela turmas existe e se possui a coluna 'unidade'
-CURSOR.execute("PRAGMA table_info(turmas)")
-colunas_turmas = [row[1] for row in CURSOR.fetchall()]
-
-# Se a tabela não tiver a coluna 'unidade', recria a tabela para o novo modelo
-if colunas_turmas and "unidade" not in colunas_turmas:
-  CURSOR.execute("DROP TABLE IF EXISTS turmas")
-  CONN.commit()
-
-CURSOR.execute("""
-CREATE TABLE IF NOT EXISTS turmas (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    unidade TEXT NOT NULL,
-    professor TEXT NOT NULL,
-    nome_turma TEXT NOT NULL,
-    horario TEXT NOT NULL
-)
-""")
-
-CURSOR.execute("""
-CREATE TABLE IF NOT EXISTS presencas (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    turma_id INTEGER NOT NULL,
-    data_aula DATE NOT NULL,
-    qtd_alunos INTEGER NOT NULL,
-    qtd_presentes INTEGER NOT NULL,
-    FOREIGN KEY(turma_id) REFERENCES turmas(id)
-)
-""")
-CONN.commit()
-
 # TURMAS BASE DAS DUAS UNIDADES (CENTRO E NORTE/SAUL)
+# ---------------------------------------------------------
 TURMAS_TODAS_UNIDADES = [
     # UNIDADE CENTRO (25 turmas)
     ("Centro", "ALINE", "CABELEIREIRO", "Quinta-feira (19:00 - 21:00)"),
@@ -193,30 +158,10 @@ TURMAS_TODAS_UNIDADES = [
     ("Norte (Saul)", "SAMUEL", "ROBÓTICA - T1", "TERÇA-FEIRA (19:00 - 21:00)"),
     ("Norte (Saul)", "SAMUEL", "ROBÓTICA - T2", "QUINTA-FEIRA (19:00 - 21:00)"),
     ("Norte (Saul)", "BRUNO", "INGLÊS", "QUARTA-FEIRA (19:00 - 21:00)"),
-    (
-        "Norte (Saul)",
-        "JURANDIR",
-        "INFORMÁTICA - T1",
-        "SEGUNDA-FEIRA (16:00 - 18:00)",
-    ),
-    (
-        "Norte (Saul)",
-        "JURANDIR",
-        "INFORMÁTICA - T2",
-        "QUINTA-FEIRA (16:00 - 18:00)",
-    ),
-    (
-        "Norte (Saul)",
-        "JURANDIR",
-        "INFORMÁTICA - T3",
-        "QUINTA-FEIRA (14:00 - 16:00)",
-    ),
-    (
-        "Norte (Saul)",
-        "JURANDIR",
-        "ADMINISTRAÇÃO",
-        "SEGUNDA-FEIRA (19:00 às 21:00)",
-    ),
+    ("Norte (Saul)", "JURANDIR", "INFORMÁTICA - T1", "SEGUNDA-FEIRA (16:00 - 18:00)"),
+    ("Norte (Saul)", "JURANDIR", "INFORMÁTICA - T2", "QUINTA-FEIRA (16:00 - 18:00)"),
+    ("Norte (Saul)", "JURANDIR", "INFORMÁTICA - T3", "QUINTA-FEIRA (14:00 - 16:00)"),
+    ("Norte (Saul)", "JURANDIR", "ADMINISTRAÇÃO", "SEGUNDA-FEIRA (19:00 às 21:00)"),
     ("Norte (Saul)", "CAIO", "INFORMÁTICA", "QUARTA-FEIRA (19:00 - 21:00)"),
     ("Norte (Saul)", "LEONARDO", "INFORMÁTICA - T1", "SÁBADO (08:30 - 10:30)"),
     ("Norte (Saul)", "LEONARDO", "INFORMÁTICA - T2", "SÁBADO (10:30 - 12:30)"),
@@ -225,12 +170,7 @@ TURMAS_TODAS_UNIDADES = [
     ("Norte (Saul)", "MENUHA", "INGLÊS", "SEGUNDA-FEIRA (19:00 - 21:00)"),
     ("Norte (Saul)", "KELLY", "BELEZA - T1", "SEGUNDA-FEIRA (19:00 - 21:00)"),
     ("Norte (Saul)", "KELLY", "BELEZA - EXTENSÃO", "SEXTA-FEIRA (19:00 - 21:00)"),
-    (
-        "Norte (Saul)",
-        "KELLY",
-        "BELEZA - ALONGAMENTO",
-        "TERÇA-FEIRA (19:00 - 21:00)",
-    ),
+    ("Norte (Saul)", "KELLY", "BELEZA - ALONGAMENTO", "TERÇA-FEIRA (19:00 - 21:00)"),
     ("Norte (Saul)", "NAYANE", "INGLÊS - T1", "TERÇA-FEIRA (14:00 - 16:00)"),
     ("Norte (Saul)", "NAYANE", "INGLÊS - T2", "SÁBADO (08:30 - 10:30)"),
     ("Norte (Saul)", "NAYANE", "INGLÊS - T3", "TERÇA-FEIRA (19:00 - 21:00)"),
@@ -244,502 +184,312 @@ TURMAS_TODAS_UNIDADES = [
     ("Norte (Saul)", "VICTÓRIA", "GESTÃO - T3", "SÁBADO (10:30 - 12:30)"),
 ]
 
+# ---------------------------------------------------------
+# 1. BANCO DE DADOS EM CACHE (MUITO MAIS RÁPIDO)
+# ---------------------------------------------------------
+@st.cache_resource
+def iniciar_banco_de_dados():
+    conn = sqlite3.connect("jumper_presenca.db", check_same_thread=False)
+    cursor = conn.cursor()
+    
+    # Verifica estrutura
+    cursor.execute("PRAGMA table_info(turmas)")
+    colunas_turmas = [row[1] for row in cursor.fetchall()]
+
+    if colunas_turmas and "unidade" not in colunas_turmas:
+        cursor.execute("DROP TABLE IF EXISTS turmas")
+        conn.commit()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS turmas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        unidade TEXT NOT NULL,
+        professor TEXT NOT NULL,
+        nome_turma TEXT NOT NULL,
+        horario TEXT NOT NULL
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS presencas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        turma_id INTEGER NOT NULL,
+        data_aula DATE NOT NULL,
+        qtd_alunos INTEGER NOT NULL,
+        qtd_presentes INTEGER NOT NULL,
+        FOREIGN KEY(turma_id) REFERENCES turmas(id)
+    )
+    """)
+    conn.commit()
+
+    # Popular se a Unidade Norte não existir
+    cursor.execute("SELECT COUNT(*) FROM turmas WHERE unidade = 'Norte (Saul)'")
+    if cursor.fetchone()[0] == 0:
+        cursor.execute("DELETE FROM turmas")
+        cursor.executemany(
+            "INSERT INTO turmas (unidade, professor, nome_turma, horario) VALUES (?, ?, ?, ?)",
+            TURMAS_TODAS_UNIDADES,
+        )
+        conn.commit()
+        
+    return conn
+
+CONN = iniciar_banco_de_dados()
+CURSOR = CONN.cursor()
 
 def resetar_turmas_base():
-  CURSOR.execute("DELETE FROM turmas")
-  CURSOR.executemany(
-      "INSERT INTO turmas (unidade, professor, nome_turma, horario) VALUES"
-      " (?, ?, ?, ?)",
-      TURMAS_TODAS_UNIDADES,
-  )
-  CONN.commit()
-
-
-CURSOR.execute("SELECT COUNT(*) FROM turmas")
-if CURSOR.fetchone()[0] == 0:
-  resetar_turmas_base()
+    CURSOR.execute("DELETE FROM turmas")
+    CURSOR.executemany(
+        "INSERT INTO turmas (unidade, professor, nome_turma, horario) VALUES (?, ?, ?, ?)",
+        TURMAS_TODAS_UNIDADES,
+    )
+    CONN.commit()
 
 # ---------------------------------------------------------
 # CABEÇALHO CENTRALIZADO
 # ---------------------------------------------------------
 col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
 with col_l2:
-  if os.path.exists("logo.png"):
-    st.image("logo.png", use_container_width=True)
-  else:
-    st.markdown(
-        "<h1 style='text-align: center; color:#A2D136; font-weight:800;"
-        " margin:0;'>JUMPER!</h1>",
-        unsafe_allow_html=True,
-    )
+    if os.path.exists("logo.png"):
+        st.image("logo.png", use_container_width=True)
+    else:
+        st.markdown(
+            "<h1 style='text-align: center; color:#A2D136; font-weight:800; margin:0;'>JUMPER!</h1>",
+            unsafe_allow_html=True,
+        )
 
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # NAVEGAÇÃO AGRUPADA POR BOTÕES
 # ---------------------------------------------------------
-opcoes_menu = [
-    "📝 Lançamento",
-    "🗑️ Corrigir",
-    "📊 Dashboard",
-    "⚙️ Gerenciar",
-]
-
-aba_ativa = st.segmented_control(
-    "", opcoes_menu, default="📝 Lançamento", label_visibility="collapsed"
-)
-
+opcoes_menu = ["📝 Lançamento", "🗑️ Corrigir", "📊 Dashboard", "⚙️ Gerenciar"]
+aba_ativa = st.segmented_control("", opcoes_menu, default="📝 Lançamento", label_visibility="collapsed")
 st.markdown("---")
 
 # ---------------------------------------------------------
-# SELEÇÃO DA UNIDADE (CENTRO / NORTE) - AFETA TODO O SISTEMA
+# SELEÇÃO DA UNIDADE (CENTRO / NORTE)
 # ---------------------------------------------------------
 col_unid1, col_unid2 = st.columns([1, 2])
 with col_unid1:
-  unidade_selecionada = st.selectbox(
-      "🏢 SELECIONE A UNIDADE", ["Centro", "Norte (Saul)"]
-  )
-
+    unidade_selecionada = st.selectbox("🏢 SELECIONE A UNIDADE", ["Centro", "Norte (Saul)"])
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# MÓDULO 1: LANÇAMENTO DE PRESENÇA (FILTRADO POR UNIDADE)
+# MÓDULO 1: LANÇAMENTO DE PRESENÇA
 # ---------------------------------------------------------
 if aba_ativa == "📝 Lançamento":
-  df_profs = pd.read_sql_query(
-      "SELECT DISTINCT professor FROM turmas WHERE unidade = ? ORDER BY"
-      " professor",
-      CONN,
-      params=(unidade_selecionada,),
-  )
-  professores = df_profs["professor"].tolist()
-
-  if not professores:
-    st.warning(
-        f"Nenhum professor cadastrado para a Unidade {unidade_selecionada}."
+    df_profs = pd.read_sql_query(
+        "SELECT DISTINCT professor FROM turmas WHERE unidade = ? ORDER BY professor",
+        CONN, params=(unidade_selecionada,),
     )
-  else:
-    prof_selecionado = st.selectbox("👤 Selecione o Professor", professores)
+    professores = df_profs["professor"].tolist()
 
-    df_turmas_prof = pd.read_sql_query(
-        """
-        SELECT MIN(id) as id, nome_turma || ' - ' || horario AS descricao 
-        FROM turmas 
-        WHERE unidade = ? AND professor = ?
-        GROUP BY nome_turma, horario
-        ORDER BY id
-        """,
-        CONN,
-        params=(unidade_selecionada, prof_selecionado),
-    )
-
-    if df_turmas_prof.empty:
-      st.info("Nenhuma turma encontrada para este professor.")
+    if not professores:
+        st.warning(f"Nenhum professor cadastrado para a Unidade {unidade_selecionada}.")
     else:
-      opcoes_turmas = dict(
-          zip(df_turmas_prof["descricao"], df_turmas_prof["id"])
-      )
+        prof_selecionado = st.selectbox("👤 Selecione o Professor", professores)
 
-      turma_desc = st.selectbox(
-          "📚 Selecione a Turma", list(opcoes_turmas.keys())
-      )
-      turma_id = opcoes_turmas[turma_desc]
-
-      data_aula = st.date_input(
-          "📅 Data da Aula", value=datetime.date.today(), format="DD/MM/YYYY"
-      )
-
-      col1, col2 = st.columns(2)
-      with col1:
-        total_alunos = st.number_input(
-            "👥 Total de Alunos da Turma",
-            min_value=1,
-            value=20,
-            step=1,
-            key="input_total_alunos",
-        )
-
-      with col2:
-        total_presentes = st.number_input(
-            "✅ Quantidade de Presentes",
-            min_value=0,
-            max_value=int(total_alunos),
-            value=min(16, int(total_alunos)),
-            step=1,
-            key="input_total_presentes",
-        )
-
-      if total_presentes > total_alunos:
-        st.error(
-            f"❌ Erro: O número de presentes ({total_presentes}) não pode ser"
-            f" maior do que o total de alunos na turma ({total_alunos})."
-        )
-      else:
-        porcentagem_presenca = (
-            (total_presentes / total_alunos) * 100 if total_alunos > 0 else 0
-        )
-
-        if porcentagem_presenca < 80.0:
-          cor_texto = "#FF4B4B"
-          bg_box = "rgba(255, 75, 75, 0.15)"
-          border_color = "#FF4B4B"
-        else:
-          cor_texto = "#A2D136"
-          bg_box = "rgba(162, 209, 54, 0.15)"
-          border_color = "#A2D136"
-
-        st.markdown(
-            f"""
-            <div style="
-                background-color: {bg_box};
-                border-left: 5px solid {border_color};
-                padding: 16px 20px;
-                border-radius: 10px;
-                margin-top: 15px;
-                margin-bottom: 25px;
-            ">
-                <span style="font-size: 18px; font-weight: 700; color: {cor_texto};">
-                    📊 Resumo: Frequência: {porcentagem_presenca:.1f}%
-                </span>
-                <span style="font-size: 15px; color: #CBD5E1; margin-left: 10px;">
-                    (Total da turma: {total_alunos} alunos)
-                </span>
-            </div>
+        df_turmas_prof = pd.read_sql_query(
+            """
+            SELECT MIN(id) as id, nome_turma || ' - ' || horario AS descricao 
+            FROM turmas 
+            WHERE unidade = ? AND professor = ?
+            GROUP BY nome_turma, horario
+            ORDER BY id
             """,
-            unsafe_allow_html=True,
+            CONN, params=(unidade_selecionada, prof_selecionado),
         )
 
-        if st.button("💾 Salvar Chamada", type="primary"):
-          CURSOR.execute(
-              "INSERT INTO presencas (turma_id, data_aula, qtd_alunos,"
-              " qtd_presentes) VALUES (?, ?, ?, ?)",
-              (
-                  turma_id,
-                  data_aula.strftime("%Y-%m-%d"),
-                  total_alunos,
-                  total_presentes,
-              ),
-          )
-          CONN.commit()
-          st.success("✅ Chamada salva com sucesso!")
+        if df_turmas_prof.empty:
+            st.info("Nenhuma turma encontrada para este professor.")
+        else:
+            opcoes_turmas = dict(zip(df_turmas_prof["descricao"], df_turmas_prof["id"]))
+            turma_desc = st.selectbox("📚 Selecione a Turma", list(opcoes_turmas.keys()))
+            turma_id = opcoes_turmas[turma_desc]
+
+            data_aula = st.date_input("📅 Data da Aula", value=datetime.date.today(), format="DD/MM/YYYY")
+
+            col1, col2 = st.columns(2)
+            with col1:
+                total_alunos = st.number_input("👥 Total de Alunos da Turma", min_value=1, value=20, step=1)
+            with col2:
+                total_presentes = st.number_input("✅ Quantidade de Presentes", min_value=0, max_value=int(total_alunos), value=min(16, int(total_alunos)), step=1)
+
+            if total_presentes > total_alunos:
+                st.error(f"❌ Erro: O número de presentes ({total_presentes}) não pode ser maior do que o total de alunos na turma ({total_alunos}).")
+            else:
+                porcentagem_presenca = (total_presentes / total_alunos) * 100 if total_alunos > 0 else 0
+                cor_texto, bg_box, border_color = ("#FF4B4B", "rgba(255, 75, 75, 0.15)", "#FF4B4B") if porcentagem_presenca < 80.0 else ("#A2D136", "rgba(162, 209, 54, 0.15)", "#A2D136")
+
+                st.markdown(
+                    f"""
+                    <div style="background-color: {bg_box}; border-left: 5px solid {border_color}; padding: 16px 20px; border-radius: 10px; margin-top: 15px; margin-bottom: 25px;">
+                        <span style="font-size: 18px; font-weight: 700; color: {cor_texto};">📊 Resumo: Frequência: {porcentagem_presenca:.1f}%</span>
+                        <span style="font-size: 15px; color: #CBD5E1; margin-left: 10px;">(Total da turma: {total_alunos} alunos)</span>
+                    </div>
+                    """, unsafe_allow_html=True
+                )
+
+                if st.button("💾 Salvar Chamada", type="primary"):
+                    CURSOR.execute(
+                        "INSERT INTO presencas (turma_id, data_aula, qtd_alunos, qtd_presentes) VALUES (?, ?, ?, ?)",
+                        (turma_id, data_aula.strftime("%Y-%m-%d"), total_alunos, total_presentes),
+                    )
+                    CONN.commit()
+                    st.success("✅ Chamada salva com sucesso!")
 
 # ---------------------------------------------------------
-# MÓDULO 2: EXCLUIR / CORRIGIR CHAMADA (FILTRADO POR UNIDADE)
+# MÓDULO 2: EXCLUIR / CORRIGIR CHAMADA
 # ---------------------------------------------------------
 elif aba_ativa == "🗑️ Corrigir":
-  st.subheader(f"🗑️ Gerenciar Chamadas - Unidade {unidade_selecionada}")
+    st.subheader(f"🗑️ Gerenciar Chamadas - Unidade {unidade_selecionada}")
 
-  query_ultimos = """
-    SELECT 
-        p.id,
-        strftime('%d/%m/%Y', p.data_aula) as Data,
-        t.professor as Professor,
-        t.nome_turma as Turma,
-        p.qtd_alunos as "Alunos Esperados",
-        p.qtd_presentes as Presentes,
-        (p.qtd_alunos - p.qtd_presentes) as Faltas
-    FROM presencas p
-    JOIN turmas t ON p.turma_id = t.id
-    WHERE t.unidade = ?
-    ORDER BY p.id DESC
-    LIMIT 50
+    query_ultimos = """
+        SELECT p.id, strftime('%d/%m/%Y', p.data_aula) as Data, t.professor as Professor, t.nome_turma as Turma, 
+               p.qtd_alunos as "Alunos Esperados", p.qtd_presentes as Presentes, (p.qtd_alunos - p.qtd_presentes) as Faltas
+        FROM presencas p JOIN turmas t ON p.turma_id = t.id
+        WHERE t.unidade = ? ORDER BY p.id DESC LIMIT 50
     """
-  df_chamadas = pd.read_sql_query(
-      query_ultimos, CONN, params=(unidade_selecionada,)
-  )
+    df_chamadas = pd.read_sql_query(query_ultimos, CONN, params=(unidade_selecionada,))
 
-  if df_chamadas.empty:
-    st.info(
-        "Nenhuma chamada registrada no histórico para esta unidade para"
-        " exclusão."
-    )
-  else:
-    st.dataframe(df_chamadas, use_container_width=True, hide_index=True)
+    if df_chamadas.empty:
+        st.info("Nenhuma chamada registrada no histórico para esta unidade para exclusão.")
+    else:
+        st.dataframe(df_chamadas, use_container_width=True, hide_index=True)
+        st.markdown("---")
+        st.subheader("Apagar Lançamento Incorreto")
 
-    st.markdown("---")
-    st.subheader("Apagar Lançamento Incorreto")
+        opcoes_deletar = {f"ID: {row['id']} | Data: {row['Data']} | Prof: {row['Professor']} - {row['Turma']} ({row['Presentes']}/{row['Alunos Esperados']} presentes)": row["id"] for idx, row in df_chamadas.iterrows()}
+        chamada_selecionada = st.selectbox("Selecione a chamada que deseja APAGAR:", list(opcoes_deletar.keys()))
+        id_para_deletar = opcoes_deletar[chamada_selecionada]
 
-    opcoes_deletar = {}
-    for idx, row in df_chamadas.iterrows():
-      label = (
-          f"ID: {row['id']} | Data: {row['Data']} | Prof: {row['Professor']} -"
-          f" {row['Turma']} ({row['Presentes']}/{row['Alunos Esperados']}"
-          " presentes)"
-      )
-      opcoes_deletar[label] = row["id"]
-
-    chamada_selecionada = st.selectbox(
-        "Selecione a chamada que deseja APAGAR:", list(opcoes_deletar.keys())
-    )
-    id_para_deletar = opcoes_deletar[chamada_selecionada]
-
-    if st.button("❌ Confirmar Exclusão da Chamada", type="primary"):
-      CURSOR.execute("DELETE FROM presencas WHERE id = ?", (id_para_deletar,))
-      CONN.commit()
-      st.success("✅ Chamada apagada com sucesso!")
-      st.rerun()
+        if st.button("❌ Confirmar Exclusão da Chamada", type="primary"):
+            CURSOR.execute("DELETE FROM presencas WHERE id = ?", (id_para_deletar,))
+            CONN.commit()
+            st.success("✅ Chamada apagada com sucesso!")
+            st.rerun()
 
 # ---------------------------------------------------------
-# MÓDULO 3: DASHBOARD DA GESTÃO (FILTRADO POR UNIDADE)
+# MÓDULO 3: DASHBOARD DA GESTÃO
 # ---------------------------------------------------------
 elif aba_ativa == "📊 Dashboard":
-  query = """
-    SELECT 
-        p.id,
-        t.professor,
-        t.nome_turma,
-        strftime('%d/%m/%Y', p.data_aula) as data_aula_br,
-        p.data_aula,
-        p.qtd_alunos,
-        p.qtd_presentes,
-        (p.qtd_alunos - p.qtd_presentes) as qtd_faltas,
-        strftime('%Y-%m', p.data_aula) as mes_ano
-    FROM presencas p
-    JOIN turmas t ON p.turma_id = t.id
-    WHERE t.unidade = ?
-    ORDER BY p.data_aula DESC
+    query = """
+        SELECT p.id, t.professor, t.nome_turma, strftime('%d/%m/%Y', p.data_aula) as data_aula_br, p.data_aula, 
+               p.qtd_alunos, p.qtd_presentes, (p.qtd_alunos - p.qtd_presentes) as qtd_faltas, strftime('%Y-%m', p.data_aula) as mes_ano
+        FROM presencas p JOIN turmas t ON p.turma_id = t.id
+        WHERE t.unidade = ? ORDER BY p.data_aula DESC
     """
-  df_dados = pd.read_sql_query(query, CONN, params=(unidade_selecionada,))
+    df_dados = pd.read_sql_query(query, CONN, params=(unidade_selecionada,))
 
-  if df_dados.empty:
-    st.info(
-        f"Nenhum lançamento registrado até o momento para a Unidade"
-        f" {unidade_selecionada}."
-    )
-  else:
-    meses_disponiveis = sorted(df_dados["mes_ano"].unique(), reverse=True)
-    mes_selecionado = st.selectbox("Filtrar por Mês/Ano", meses_disponiveis)
+    if df_dados.empty:
+        st.info(f"Nenhum lançamento registrado até o momento para a Unidade {unidade_selecionada}.")
+    else:
+        meses_disponiveis = sorted(df_dados["mes_ano"].unique(), reverse=True)
+        mes_selecionado = st.selectbox("Filtrar por Mês/Ano", meses_disponiveis)
 
-    df_mes = df_dados[df_dados["mes_ano"] == mes_selecionado].copy()
+        df_mes = df_dados[df_dados["mes_ano"] == mes_selecionado].copy()
+        total_aulas = len(df_mes)
+        total_alunos_acum = df_mes["qtd_alunos"].sum()
+        total_presentes_acum = df_mes["qtd_presentes"].sum()
+        total_faltas_acum = df_mes["qtd_faltas"].sum()
+        freq_media_geral = (total_presentes_acum / total_alunos_acum * 100) if total_alunos_acum > 0 else 0
 
-    total_aulas = len(df_mes)
-    total_alunos_acum = df_mes["qtd_alunos"].sum()
-    total_presentes_acum = df_mes["qtd_presentes"].sum()
-    total_faltas_acum = df_mes["qtd_faltas"].sum()
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric(f"Frequência Média ({unidade_selecionada})", f"{freq_media_geral:.1f}%")
+        c2.metric("Aulas Ministradas", total_aulas)
+        c3.metric("Total Alunos Esperados", total_alunos_acum)
+        c4.metric("Total Faltas no Mês", total_faltas_acum)
 
-    freq_media_geral = (
-        (total_presentes_acum / total_alunos_acum * 100)
-        if total_alunos_acum > 0
-        else 0
-    )
+        st.markdown("<br>", unsafe_allow_html=True)
 
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric(
-        f"Frequência Média ({unidade_selecionada})", f"{freq_media_geral:.1f}%"
-    )
-    c2.metric("Aulas Ministradas", total_aulas)
-    c3.metric("Total Alunos Esperados", total_alunos_acum)
-    c4.metric("Total Faltas no Mês", total_faltas_acum)
+        df_prof = df_mes.groupby("professor").agg(total_esperado=("qtd_alunos", "sum"), total_presencas=("qtd_presentes", "sum"), aulas=("id", "count")).reset_index()
+        df_prof["Frequencia_%"] = round((df_prof["total_presencas"] / df_prof["total_esperado"]) * 100, 1)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+        col_g1, col_g2 = st.columns([2, 1])
+        with col_g1:
+            fig = px.bar(df_prof, x="professor", y="Frequencia_%", text="Frequencia_%", title=f"Taxa de Frequência - {unidade_selecionada} ({mes_selecionado})", color_discrete_sequence=["#A2D136"])
+            fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside", marker_color="#A2D136")
+            fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", font_color="#F1F5F9", yaxis_range=[0, 105], margin=dict(l=10, r=10, t=40, b=10))
+            st.plotly_chart(fig, use_container_width=True)
 
-    df_prof = (
-        df_mes.groupby("professor")
-        .agg(
-            total_esperado=("qtd_alunos", "sum"),
-            total_presencas=("qtd_presentes", "sum"),
-            aulas=("id", "count"),
-        )
-        .reset_index()
-    )
+        with col_g2:
+            st.subheader("Resumo por Professor")
+            st.dataframe(df_prof[["professor", "aulas", "Frequencia_%"]].rename(columns={"professor": "Prof.", "aulas": "Aulas"}), use_container_width=True, hide_index=True)
 
-    df_prof["Frequencia_%"] = round(
-        (df_prof["total_presencas"] / df_prof["total_esperado"]) * 100, 1
-    )
-
-    col_g1, col_g2 = st.columns([2, 1])
-
-    with col_g1:
-      fig = px.bar(
-          df_prof,
-          x="professor",
-          y="Frequencia_%",
-          text="Frequencia_%",
-          title=(
-              f"Taxa de Frequência por Professor - {unidade_selecionada}"
-              f" ({mes_selecionado})"
-          ),
-          color_discrete_sequence=["#A2D136"],
-          labels={"Frequencia_%": "Presença (%)", "professor": "Professor"},
-      )
-      fig.update_traces(
-          texttemplate="%{text:.1f}%",
-          textposition="outside",
-          marker_color="#A2D136",
-      )
-      fig.update_layout(
-          plot_bgcolor="rgba(0,0,0,0)",
-          paper_bgcolor="rgba(0,0,0,0)",
-          font_color="#F1F5F9",
-          yaxis_range=[0, 105],
-          margin=dict(l=10, r=10, t=40, b=10),
-      )
-      st.plotly_chart(fig, use_container_width=True)
-
-    with col_g2:
-      st.subheader("Resumo por Professor")
-      st.dataframe(
-          df_prof[["professor", "aulas", "Frequencia_%"]].rename(
-              columns={"professor": "Prof.", "aulas": "Aulas"}
-          ),
-          use_container_width=True,
-          hide_index=True,
-      )
-
-    st.markdown("---")
-    st.subheader("📋 Registros Detalhados do Mês")
-    st.dataframe(
-        df_mes[[
-            "id",
-            "data_aula_br",
-            "professor",
-            "nome_turma",
-            "qtd_alunos",
-            "qtd_presentes",
-            "qtd_faltas",
-        ]].rename(columns={"data_aula_br": "Data da Aula"}),
-        use_container_width=True,
-        hide_index=True,
-    )
+        st.markdown("---")
+        st.subheader("📋 Registros Detalhados do Mês")
+        st.dataframe(df_mes[["id", "data_aula_br", "professor", "nome_turma", "qtd_alunos", "qtd_presentes", "qtd_faltas"]].rename(columns={"data_aula_br": "Data da Aula"}), use_container_width=True, hide_index=True)
 
 # ---------------------------------------------------------
-# MÓDULO 4: GERENCIAR TURMAS (FILTRADO POR UNIDADE)
+# MÓDULO 4: GERENCIAR TURMAS
 # ---------------------------------------------------------
 elif aba_ativa == "⚙️ Gerenciar":
-  st.subheader(
-      f"⚙️ Cadastro e Gestão de Turmas - Unidade {unidade_selecionada}"
-  )
+    st.subheader(f"⚙️ Cadastro e Gestão de Turmas - Unidade {unidade_selecionada}")
 
-  # 1. FORMULÁRIO DE NOVA TURMA
-  with st.expander(f"➕ Cadastrar Nova Turma na Unidade {unidade_selecionada}"):
-    with st.form("form_nova_turma", clear_on_submit=True):
-      novo_prof = st.text_input("Nome do Professor").strip().upper()
-      nome_turma = st.text_input("Nome/Curso da Turma (Ex: INFORMÁTICA)")
-      horario = st.text_input("Dia e Horário (Ex: SÁBADO 08:30 - 10:30)")
+    with st.expander(f"➕ Cadastrar Nova Turma na Unidade {unidade_selecionada}"):
+        with st.form("form_nova_turma", clear_on_submit=True):
+            novo_prof = st.text_input("Nome do Professor").strip().upper()
+            nome_turma = st.text_input("Nome/Curso da Turma (Ex: INFORMÁTICA)")
+            horario = st.text_input("Dia e Horário (Ex: SÁBADO 08:30 - 10:30)")
+            btn_cadastrar = st.form_submit_button("Cadastrar Turma", type="primary")
 
-      btn_cadastrar = st.form_submit_button("Cadastrar Turma", type="primary")
+            if btn_cadastrar:
+                if novo_prof and nome_turma and horario:
+                    CURSOR.execute("INSERT INTO turmas (unidade, professor, nome_turma, horario) VALUES (?, ?, ?, ?)", (unidade_selecionada, novo_prof, nome_turma, horario))
+                    CONN.commit()
+                    st.success(f"Nova turma cadastrada na Unidade {unidade_selecionada} para o professor {novo_prof}!")
+                    st.rerun()
+                else:
+                    st.error("Preencha todos os campos obrigatórios.")
 
-      if btn_cadastrar:
-        if novo_prof and nome_turma and horario:
-          CURSOR.execute(
-              "INSERT INTO turmas (unidade, professor, nome_turma, horario)"
-              " VALUES (?, ?, ?, ?)",
-              (unidade_selecionada, novo_prof, nome_turma, horario),
-          )
-          CONN.commit()
-          st.success(
-              f"Nova turma cadastrada na Unidade {unidade_selecionada} para o"
-              f" professor {novo_prof}!"
-          )
-          st.rerun()
-        else:
-          st.error("Preencha todos os campos obrigatórios.")
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.subheader(f"Turmas Cadastradas - Unidade {unidade_selecionada}")
+    df_todas_turmas = pd.read_sql_query("SELECT id, unidade, professor, nome_turma, horario FROM turmas WHERE unidade = ? ORDER BY professor, id", CONN, params=(unidade_selecionada,))
 
-  # TABELA DE TURMAS CADASTRADAS DA UNIDADE
-  st.markdown("<br>", unsafe_allow_html=True)
-  st.subheader(f"Turmas Cadastradas - Unidade {unidade_selecionada}")
-  df_todas_turmas = pd.read_sql_query(
-      "SELECT id, unidade, professor, nome_turma, horario FROM turmas WHERE"
-      " unidade = ? ORDER BY professor, id",
-      CONN,
-      params=(unidade_selecionada,),
-  )
+    if df_todas_turmas.empty:
+        st.info(f"Nenhuma turma cadastrada para a Unidade {unidade_selecionada}.")
+    else:
+        st.dataframe(df_todas_turmas, use_container_width=True, hide_index=True)
+        st.markdown("---")
+        col_ed1, col_ed2 = st.columns(2)
 
-  if df_todas_turmas.empty:
-    st.info(f"Nenhuma turma cadastrada para a Unidade {unidade_selecionada}.")
-  else:
-    st.dataframe(df_todas_turmas, use_container_width=True, hide_index=True)
+        with col_ed1:
+            with st.expander("✏️ Alterar Professor da Turma"):
+                dict_turmas_edit = {f"ID {row['id']} | {row['professor']} - {row['nome_turma']} ({row['horario']})": (row["id"], row["professor"]) for idx, row in df_todas_turmas.iterrows()}
+                turma_para_editar = st.selectbox("Selecione a turma:", list(dict_turmas_edit.keys()), key="select_edit_prof")
+                id_turma_edit, prof_atual = dict_turmas_edit[turma_para_editar]
+                novo_prof_nome = st.text_input("Novo Nome do Professor", value=prof_atual).strip().upper()
+
+                if st.button("💾 Salvar Alteração", type="primary"):
+                    if novo_prof_nome:
+                        CURSOR.execute("UPDATE turmas SET professor = ? WHERE id = ?", (novo_prof_nome, id_turma_edit))
+                        CONN.commit()
+                        st.success("✅ Professor alterado!")
+                        st.rerun()
+
+        with col_ed2:
+            with st.expander("🗑️ Excluir Turma Cadastrada"):
+                dict_turmas_del = {f"ID {row['id']} | {row['professor']} - {row['nome_turma']} ({row['horario']})": row["id"] for idx, row in df_todas_turmas.iterrows()}
+                turma_para_deletar = st.selectbox("Selecione a turma:", list(dict_turmas_del.keys()), key="select_del_turma")
+                id_turma_del = dict_turmas_del[turma_para_deletar]
+                
+                st.warning("⚠️ Ao excluir uma turma, essa ação não poderá ser desfeita.")
+                confirmacao = st.checkbox("Tenho certeza que desejo EXCLUIR permanentemente", key="check_confirm_del")
+
+                if st.button("❌ Confirmar Exclusão", type="primary"):
+                    if confirmacao:
+                        CURSOR.execute("DELETE FROM turmas WHERE id = ?", (id_turma_del,))
+                        CONN.commit()
+                        st.success("✅ Turma excluída!")
+                        st.rerun()
+                    else:
+                        st.error("Marque a caixa de confirmação.")
 
     st.markdown("---")
-    col_ed1, col_ed2 = st.columns(2)
-
-    # 2. EDITAR PROFESSOR DA TURMA
-    with col_ed1:
-      with st.expander("✏️ Alterar Professor da Turma"):
-        dict_turmas_edit = {}
-        for idx, row in df_todas_turmas.iterrows():
-          label = (
-              f"ID {row['id']} | {row['professor']} - {row['nome_turma']} "
-              f"({row['horario']})"
-          )
-          dict_turmas_edit[label] = (row["id"], row["professor"])
-
-        turma_para_editar = st.selectbox(
-            "Selecione a turma para alterar o professor:",
-            list(dict_turmas_edit.keys()),
-            key="select_edit_prof",
-        )
-        id_turma_edit, prof_atual = dict_turmas_edit[turma_para_editar]
-
-        novo_prof_nome = (
-            st.text_input(
-                "Novo Nome do Professor",
-                value=prof_atual,
-                key="input_novo_prof_nome",
-            )
-            .strip()
-            .upper()
-        )
-
-        if st.button("💾 Salvar Alteração de Professor", type="primary"):
-          if novo_prof_nome:
-            CURSOR.execute(
-                "UPDATE turmas SET professor = ? WHERE id = ?",
-                (novo_prof_nome, id_turma_edit),
-            )
-            CONN.commit()
-            st.success("✅ Professor alterado com sucesso!")
+    with st.expander("🛠️ Ferramentas de Manutenção"):
+        st.caption("Restaura a lista inicial de turmas das duas unidades.")
+        if st.button("🔄 Resetar Tabela para Turmas Iniciais"):
+            resetar_turmas_base()
+            st.success("Tabela restaurada!")
             st.rerun()
-          else:
-            st.error("Informe o nome do novo professor.")
-
-    # 3. EXCLUIR TURMA COM CONFIRMAÇÃO
-    with col_ed2:
-      with st.expander("🗑️ Excluir Turma Cadastrada"):
-        dict_turmas_del = {}
-        for idx, row in df_todas_turmas.iterrows():
-          label = (
-              f"ID {row['id']} | {row['professor']} - {row['nome_turma']} "
-              f"({row['horario']})"
-          )
-          dict_turmas_del[label] = row["id"]
-
-        turma_para_deletar = st.selectbox(
-            "Selecione a turma que deseja EXCLUIR:",
-            list(dict_turmas_del.keys()),
-            key="select_del_turma",
-        )
-        id_turma_del = dict_turmas_del[turma_para_deletar]
-
-        st.warning(
-            "⚠️ **Atenção:** Ao excluir uma turma, essa ação não poderá ser"
-            " desfeita."
-        )
-
-        confirmacao = st.checkbox(
-            "Tenho certeza que desejo EXCLUIR permanentemente esta turma",
-            key="check_confirm_del",
-        )
-
-        if st.button("❌ Confirmar Exclusão da Turma", type="primary"):
-          if confirmacao:
-            CURSOR.execute("DELETE FROM turmas WHERE id = ?", (id_turma_del,))
-            CONN.commit()
-            st.success("✅ Turma excluída com sucesso!")
-            st.rerun()
-          else:
-            st.error(
-                "Por favor, marque a caixa de confirmação acima para autorizar"
-                " a exclusão."
-            )
-
-  # FERRAMENTA DE MANUTENÇÃO
-  st.markdown("---")
-  with st.expander("🛠️ Ferramentas de Manutenção do Banco de Dados"):
-    st.caption(
-        "Utilize para restaurar a lista inicial de turmas das duas unidades."
-    )
-    if st.button("🔄 Resetar Tabela para Turmas Iniciais das Duas Unidades"):
-      resetar_turmas_base()
-      st.success("Tabela de turmas restaurada para o padrão inicial!")
-      st.rerun()
