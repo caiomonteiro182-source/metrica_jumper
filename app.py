@@ -104,7 +104,7 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# 1. BANCO DE DADOS (Criação e Limpeza Automática)
+# 1. BANCO DE DADOS (Estrutura Inicial)
 # ---------------------------------------------------------
 CONN = sqlite3.connect("jumper_presenca.db", check_same_thread=False)
 CURSOR = CONN.cursor()
@@ -131,43 +131,42 @@ CREATE TABLE IF NOT EXISTS presencas (
 """)
 CONN.commit()
 
-# Limpeza e Repopulação Exata das 25 Turmas da Planilha Base
-turmas_base_excel = [
+# Lista Mestra de Turmas Únicas (Base Excel)
+TURMAS_BASE_EXCEL = [
     ("ALINE", "CABELEIREIRO", "Quinta-feira", "19:00 - 21:00"),
-    ("CAIO", "INFORMÁTICA T1", "Sábado", "08:30 às 10:30"),
-    ("CAIO", "INFORMÁTICA T2", "Sábado", "10:30 às 12:30"),
-    ("CAIO", "INFORMÁTICA T3", "Terça-feira", "19:00 às 21:00"),
+    ("CAIO", "INFORMÁTICA - T1", "Sábado", "08:30 às 10:30"),
+    ("CAIO", "INFORMÁTICA - T2", "Sábado", "10:30 às 12:30"),
+    ("CAIO", "INFORMÁTICA - T3", "Terça-feira", "19:00 às 21:00"),
     ("HELLEN", "INGLÊS", "Quarta-feira", "18:30 - 20:30"),
     ("SAMUEL", "ROBÓTICA", "Sábado", "08:30"),
     ("JULIA", "ADMINISTRAÇÃO", "Sábado", "10:30 às 12:30"),
-    ("JURANDIR", "INFORMÁTICA T1", "Terça-feira", "14:00 às 16:00"),
-    ("JURANDIR", "INFORMÁTICA T2", "Terça-feira", "16:00 às 18:00"),
-    ("JURANDIR", "INFORMÁTICA T3", "Quarta-feira", "14:00 às 16:00"),
-    ("KELLY", "DESIGN T1", "Sábado", "08:30 - 10:30"),
-    ("KELLY", "DESIGN T2", "Sábado", "10:30 - 12:30"),
-    ("KELLY", "DESIGN T3", "Sábado", "13:00 às 15:00"),
-    ("KELLY", "DESIGN T4", "Sábado", "16:00 às 18:00"),
+    ("JURANDIR", "INFORMÁTICA - T1", "Terça-feira", "14:00 às 16:00"),
+    ("JURANDIR", "INFORMÁTICA - T2", "Terça-feira", "16:00 às 18:00"),
+    ("JURANDIR", "INFORMÁTICA - T3", "Quarta-feira", "14:00 às 16:00"),
+    ("KELLY", "DESIGN - T1", "Sábado", "08:30 - 10:30"),
+    ("KELLY", "DESIGN - T2", "Sábado", "10:30 - 12:30"),
+    ("KELLY", "DESIGN - T3", "Sábado", "13:00 às 15:00"),
+    ("KELLY", "DESIGN - T4", "Sábado", "16:00 às 18:00"),
     ("MENUHA", "IDIOMAS", "Sábado", "10:30"),
-    ("NAYANE", "INGLÊS T1", "Quarta-feira", "09:00 - 11:00"),
-    ("NAYANE", "INGLÊS T2", "Quarta-feira", "16:00 - 18:00"),
-    ("NAYANE", "INGLÊS T3", "Quarta-feira", "19:00 - 21:00"),
-    ("NAYANE", "INGLÊS T4", "Sábado", "13:00 - 15:00"),
+    ("NAYANE", "INGLÊS - T1", "Quarta-feira", "09:00 - 11:00"),
+    ("NAYANE", "INGLÊS - T2", "Quarta-feira", "16:00 - 18:00"),
+    ("NAYANE", "INGLÊS - T3", "Quarta-feira", "19:00 - 21:00"),
+    ("NAYANE", "INGLÊS - T4", "Sábado", "13:00 - 15:00"),
     ("DAVI", "INFORMÁTICA", "Segunda-feira", "19:00 - 21:00"),
-    ("TULIO", "INFORMÁTICA T1", "Sábado", "08:30 - 10:30"),
-    ("TULIO", "INFORMÁTICA T2", "Sábado", "10:30 - 12:30"),
-    ("TULIO", "INFORMÁTICA T3", "Quarta-feira", "19:00 - 21:00"),
-    ("VINICIUS", "GESTÃO T1", "Sábado", "10:30"),
-    ("VINICIUS", "GESTÃO T2", "Quinta-feira", "09:00"),
+    ("TULIO", "INFORMÁTICA - T1", "Sábado", "08:30 - 10:30"),
+    ("TULIO", "INFORMÁTICA - T2", "Sábado", "10:30 - 12:30"),
+    ("TULIO", "INFORMÁTICA - T3", "Quarta-feira", "19:00 - 21:00"),
+    ("VINICIUS", "GESTÃO - T1", "Sábado", "10:30"),
+    ("VINICIUS", "GESTÃO - T2", "Quinta-feira", "09:00"),
 ]
 
-# Recarrega a tabela para garantir sincronia com a planilha
+# Inicialização limpa caso o banco esteja vazio
 CURSOR.execute("SELECT COUNT(*) FROM turmas")
-if CURSOR.fetchone()[0] < 25:
-  CURSOR.execute("DELETE FROM turmas")
+if CURSOR.fetchone()[0] == 0:
   CURSOR.executemany(
       "INSERT INTO turmas (professor, nome_turma, dia_semana, horario) VALUES"
       " (?, ?, ?, ?)",
-      turmas_base_excel,
+      TURMAS_BASE_EXCEL,
   )
   CONN.commit()
 
@@ -228,7 +227,6 @@ if menu == "📝 Lançamento de Aula":
   else:
     prof_selecionado = st.selectbox("👤 Selecione o Professor", professores)
 
-    # Exibe Nome da Turma + Dia e Horário sem duplicar
     df_turmas_prof = pd.read_sql_query(
         "SELECT id, nome_turma || ' - ' || dia_semana || ' (' || horario || ')'"
         " AS descricao FROM turmas WHERE professor = ?",
@@ -396,7 +394,7 @@ elif menu == "📊 Dashboard da Gestão":
   df_dados = pd.read_sql_query(query, CONN)
 
   if df_dados.empty:
-    st.info("Nenum lançamento registrado até o momento.")
+    st.info("Nenhum lançamento registrado até o momento.")
   else:
     meses_disponiveis = sorted(df_dados["mes_ano"].unique(), reverse=True)
     mes_selecionado = st.sidebar.selectbox(
@@ -491,7 +489,7 @@ elif menu == "📊 Dashboard da Gestão":
     )
 
 # ---------------------------------------------------------
-# MÓDULO 4: GERENCIAR TURMAS
+# MÓDULO 4: GERENCIAR TURMAS + FERRAMENTAS DE MANUTENÇÃO
 # ---------------------------------------------------------
 elif menu == "⚙️ Gerenciar Turmas":
   st.subheader("⚙️ Cadastro e Gestão de Turmas")
@@ -536,3 +534,44 @@ elif menu == "⚙️ Gerenciar Turmas":
       CONN,
   )
   st.dataframe(df_todas_turmas, use_container_width=True, hide_index=True)
+
+  # Ferramentas de Manutenção do Banco de Dados
+  st.markdown("---")
+  with st.expander("🛠️ Ferramentas de Manutenção do Banco de Dados"):
+    st.caption(
+        "Utilize as opções abaixo se perceber qualquer divergência de turmas"
+        " ou se desejar reiniciar o banco de dados."
+    )
+
+    col_btn1, col_btn2 = st.columns(2)
+
+    with col_btn1:
+      if st.button("🔄 Restaurar Apenas Turmas Padrão"):
+        CURSOR.execute("DELETE FROM turmas")
+        CURSOR.executemany(
+            "INSERT INTO turmas (professor, nome_turma, dia_semana, horario)"
+            " VALUES (?, ?, ?, ?)",
+            TURMAS_BASE_EXCEL,
+        )
+        CONN.commit()
+        st.success(
+            "✅ Lista de turmas restaurada com sucesso! (O histórico de"
+            " chamadas foi mantido)."
+        )
+        st.rerun()
+
+    with col_btn2:
+      if st.button("⚠️ Resetar Banco Completo (Turmas + Chamadas)"):
+        CURSOR.execute("DELETE FROM presencas")
+        CURSOR.execute("DELETE FROM turmas")
+        CURSOR.executemany(
+            "INSERT INTO turmas (professor, nome_turma, dia_semana, horario)"
+            " VALUES (?, ?, ?, ?)",
+            TURMAS_BASE_EXCEL,
+        )
+        CONN.commit()
+        st.success(
+            "✅ Banco de dados zerado e restaurado com sucesso para a versão"
+            " inicial!"
+        )
+        st.rerun()
