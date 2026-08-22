@@ -123,81 +123,128 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# TURMAS BASE DAS DUAS UNIDADES (CENTRO E NORTE/SAUL)
+# DADOS PRÉ-CARREGADOS DE AGOSTO (CENTRO E NORTE)
 # ---------------------------------------------------------
-TURMAS_TODAS_UNIDADES = [
-    # UNIDADE CENTRO (25 turmas)
-    ("Centro", "ALINE", "CABELEIREIRO", "Quinta-feira (19:00 - 21:00)"),
-    ("Centro", "CAIO", "INFORMÁTICA - T1", "Sábado (08:30 às 10:30)"),
-    ("Centro", "CAIO", "INFORMÁTICA - T2", "Sábado (10:30 às 12:30)"),
-    ("Centro", "CAIO", "INFORMÁTICA - T3", "Terça-feira (19:00 às 21:00)"),
-    ("Centro", "HELLEN", "INGLÊS", "Quarta-feira (18:30 - 20:30)"),
-    ("Centro", "SAMUEL", "ROBÓTICA", "Sábado (08:30)"),
-    ("Centro", "JULIA", "ADMINISTRAÇÃO", "Sábado (10:30 às 12:30)"),
-    ("Centro", "JURANDIR", "INFORMÁTICA - T1", "Terça-feira (14:00 às 16:00)"),
-    ("Centro", "JURANDIR", "INFORMÁTICA - T2", "Terça-feira (16:00 às 18:00)"),
-    ("Centro", "JURANDIR", "INFORMÁTICA - T3", "Quarta-feira (14:00 às 16:00)"),
-    ("Centro", "KELLY", "DESIGN - T1", "Sábado (08:30 - 10:30)"),
-    ("Centro", "KELLY", "DESIGN - T2", "Sábado (10:30 - 12:30)"),
-    ("Centro", "KELLY", "DESIGN - T3", "Sábado (13:00 às 15:00)"),
-    ("Centro", "KELLY", "DESIGN - T4", "Sábado (16:00 às 18:00)"),
-    ("Centro", "MENUHA", "IDIOMAS", "Sábado (10:30)"),
-    ("Centro", "NAYANE", "INGLÊS - T1", "Quarta-feira (09:00 - 11:00)"),
-    ("Centro", "NAYANE", "INGLÊS - T2", "Quarta-feira (16:00 - 18:00)"),
-    ("Centro", "NAYANE", "INGLÊS - T3", "Quarta-feira (19:00 - 21:00)"),
-    ("Centro", "NAYANE", "INGLÊS - T4", "Sábado (13:00 - 15:00)"),
-    ("Centro", "DAVI", "INFORMÁTICA", "Segunda-feira (19:00 - 21:00)"),
-    ("Centro", "TULIO", "INFORMÁTICA - T1", "Sábado (08:30 - 10:30)"),
-    ("Centro", "TULIO", "INFORMÁTICA - T2", "Sábado (10:30 - 12:30)"),
-    ("Centro", "TULIO", "INFORMÁTICA - T3", "Quarta-feira (19:00 - 21:00)"),
-    ("Centro", "VINICIUS", "GESTÃO - T1", "Sábado (10:30)"),
-    ("Centro", "VINICIUS", "GESTÃO - T2", "Quinta-feira (09:00)"),
-    # UNIDADE NORTE (SAUL) - (29 turmas)
-    ("Norte (Saul)", "ALINE", "ESTÉTICA - T1", "SEGUNDA-FEIRA (14:00 - 16:00)"),
-    ("Norte (Saul)", "ALINE", "ESTÉTICA - T2", "SEGUNDA-FEIRA (19:00 - 21:00)"),
-    ("Norte (Saul)", "SAMUEL", "ROBÓTICA - T1", "TERÇA-FEIRA (19:00 - 21:00)"),
-    ("Norte (Saul)", "SAMUEL", "ROBÓTICA - T2", "QUINTA-FEIRA (19:00 - 21:00)"),
-    ("Norte (Saul)", "BRUNO", "INGLÊS", "QUARTA-FEIRA (19:00 - 21:00)"),
-    ("Norte (Saul)", "JURANDIR", "INFORMÁTICA - T1", "SEGUNDA-FEIRA (16:00 - 18:00)"),
-    ("Norte (Saul)", "JURANDIR", "INFORMÁTICA - T2", "QUINTA-FEIRA (16:00 - 18:00)"),
-    ("Norte (Saul)", "JURANDIR", "INFORMÁTICA - T3", "QUINTA-FEIRA (14:00 - 16:00)"),
-    ("Norte (Saul)", "JURANDIR", "ADMINISTRAÇÃO", "SEGUNDA-FEIRA (19:00 às 21:00)"),
-    ("Norte (Saul)", "CAIO", "INFORMÁTICA", "QUARTA-FEIRA (19:00 - 21:00)"),
-    ("Norte (Saul)", "LEONARDO", "INFORMÁTICA - T1", "SÁBADO (08:30 - 10:30)"),
-    ("Norte (Saul)", "LEONARDO", "INFORMÁTICA - T2", "SÁBADO (10:30 - 12:30)"),
-    ("Norte (Saul)", "GABRIEL", "DESIGN - T1", "SÁBADO (08:30 - 10:30)"),
-    ("Norte (Saul)", "GABRIEL", "DESIGN - T2", "SÁBADO (10:30 - 12:30)"),
-    ("Norte (Saul)", "MENUHA", "INGLÊS", "SEGUNDA-FEIRA (19:00 - 21:00)"),
-    ("Norte (Saul)", "KELLY", "BELEZA - T1", "SEGUNDA-FEIRA (19:00 - 21:00)"),
-    ("Norte (Saul)", "KELLY", "BELEZA - EXTENSÃO", "SEXTA-FEIRA (19:00 - 21:00)"),
-    ("Norte (Saul)", "KELLY", "BELEZA - ALONGAMENTO", "TERÇA-FEIRA (19:00 - 21:00)"),
-    ("Norte (Saul)", "NAYANE", "INGLÊS - T1", "TERÇA-FEIRA (14:00 - 16:00)"),
-    ("Norte (Saul)", "NAYANE", "INGLÊS - T2", "SÁBADO (08:30 - 10:30)"),
-    ("Norte (Saul)", "NAYANE", "INGLÊS - T3", "TERÇA-FEIRA (19:00 - 21:00)"),
-    ("Norte (Saul)", "NAYANE", "INGLÊS - T4", "SÁBADO (10:30 - 12:30)"),
-    ("Norte (Saul)", "NAYANE", "INGLÊS - T5", "QUINTA-FEIRA (19:00 - 21:00)"),
-    ("Norte (Saul)", "FULVIO", "IDIOMAS - T1", "TERÇA-FEIRA (19:00 - 21:00)"),
-    ("Norte (Saul)", "FULVIO", "IDIOMAS - T2", "QUINTA-FEIRA (19:00 - 21:00)"),
-    ("Norte (Saul)", "FULVIO", "IDIOMAS - T3", "SÁBADO (13:30 às 15:30)"),
-    ("Norte (Saul)", "VICTÓRIA", "GESTÃO - T1", "QUINTA-FEIRA (19:00 - 21:00)"),
-    ("Norte (Saul)", "VICTÓRIA", "GESTÃO - T2", "SÁBADO (08:30 - 10:30)"),
-    ("Norte (Saul)", "VICTÓRIA", "GESTÃO - T3", "SÁBADO (10:30 - 12:30)"),
+DADOS_AGOSTO_INICIAL = [
+    # Centro
+    ('Centro', 'ALINE', 'CABELEIREIRO', 'QUINTA 19:00 - 21:00', '2026-08-06', 7, 6),
+    ('Centro', 'ALINE', 'CABELEIREIRO', 'QUINTA 19:00 - 21:00', '2026-08-13', 7, 5),
+    ('Centro', 'ALINE', 'CABELEIREIRO', 'QUINTA 19:00 - 21:00', '2026-08-20', 4, 2),
+    ('Centro', 'CAIO', 'INFORMÁTICA - T1', 'Sábado (08:30 às 10:30)', '2026-08-01', 20, 16),
+    ('Centro', 'CAIO', 'INFORMÁTICA - T1', 'Sábado (08:30 às 10:30)', '2026-08-08', 20, 15),
+    ('Centro', 'CAIO', 'INFORMÁTICA - T1', 'Sábado (08:30 às 10:30)', '2026-08-15', 20, 18),
+    ('Centro', 'CAIO', 'INFORMÁTICA - T1', 'Sábado (08:30 às 10:30)', '2026-08-22', 20, 16),
+    ('Centro', 'CAIO', 'INFORMÁTICA - T2', 'Sábado (10:30 às 12:30)', '2026-08-01', 18, 14),
+    ('Centro', 'CAIO', 'INFORMÁTICA - T2', 'Sábado (10:30 às 12:30)', '2026-08-08', 18, 12),
+    ('Centro', 'CAIO', 'INFORMÁTICA - T2', 'Sábado (10:30 às 12:30)', '2026-08-15', 18, 15),
+    ('Centro', 'CAIO', 'INFORMÁTICA - T2', 'Sábado (10:30 às 12:30)', '2026-08-22', 18, 14),
+    ('Centro', 'CAIO', 'INFORMÁTICA - T3', 'Terça-feira (19:00 às 21:00)', '2026-08-04', 15, 11),
+    ('Centro', 'CAIO', 'INFORMÁTICA - T3', 'Terça-feira (19:00 às 21:00)', '2026-08-11', 15, 10),
+    ('Centro', 'CAIO', 'INFORMÁTICA - T3', 'Terça-feira (19:00 às 21:00)', '2026-08-18', 15, 12),
+    ('Centro', 'HELLEN', 'INGLÊS', 'Quarta-feira (18:30 - 20:30)', '2026-08-05', 12, 10),
+    ('Centro', 'HELLEN', 'INGLÊS', 'Quarta-feira (18:30 - 20:30)', '2026-08-12', 12, 9),
+    ('Centro', 'HELLEN', 'INGLÊS', 'Quarta-feira (18:30 - 20:30)', '2026-08-19', 12, 11),
+    ('Centro', 'SAMUEL', 'ROBÓTICA', 'Sábado (08:30)', '2026-08-01', 10, 8),
+    ('Centro', 'SAMUEL', 'ROBÓTICA', 'Sábado (08:30)', '2026-08-08', 10, 7),
+    ('Centro', 'SAMUEL', 'ROBÓTICA', 'Sábado (08:30)', '2026-08-15', 10, 9),
+    ('Centro', 'SAMUEL', 'ROBÓTICA', 'Sábado (08:30)', '2026-08-22', 10, 8),
+    ('Centro', 'JULIA', 'ADMINISTRAÇÃO', 'Sábado (10:30 às 12:30)', '2026-08-01', 14, 11),
+    ('Centro', 'JULIA', 'ADMINISTRAÇÃO', 'Sábado (10:30 às 12:30)', '2026-08-08', 14, 10),
+    ('Centro', 'JULIA', 'ADMINISTRAÇÃO', 'Sábado (10:30 às 12:30)', '2026-08-15', 14, 12),
+    ('Centro', 'JULIA', 'ADMINISTRAÇÃO', 'Sábado (10:30 às 12:30)', '2026-08-22', 14, 11),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA - T1', 'Terça-feira (14:00 às 16:00)', '2026-08-04', 16, 13),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA - T1', 'Terça-feira (14:00 às 16:00)', '2026-08-11', 16, 12),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA - T1', 'Terça-feira (14:00 às 16:00)', '2026-08-18', 16, 14),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA - T2', 'Terça-feira (16:00 às 18:00)', '2026-08-04', 15, 11),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA - T2', 'Terça-feira (16:00 às 18:00)', '2026-08-11', 15, 10),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA - T2', 'Terça-feira (16:00 às 18:00)', '2026-08-18', 15, 12),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA - T3', 'Quarta-feira (14:00 às 16:00)', '2026-08-05', 14, 10),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA - T3', 'Quarta-feira (14:00 às 16:00)', '2026-08-12', 14, 11),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA - T3', 'Quarta-feira (14:00 às 16:00)', '2026-08-19', 14, 9),
+    ('Centro', 'KELLY', 'DESIGN - T1', 'Sábado (08:30 - 10:30)', '2026-08-01', 12, 10),
+    ('Centro', 'KELLY', 'DESIGN - T1', 'Sábado (08:30 - 10:30)', '2026-08-08', 12, 9),
+    ('Centro', 'KELLY', 'DESIGN - T1', 'Sábado (08:30 - 10:30)', '2026-08-15', 12, 11),
+    ('Centro', 'KELLY', 'DESIGN - T2', 'Sábado (10:30 - 12:30)', '2026-08-01', 10, 8),
+    ('Centro', 'KELLY', 'DESIGN - T2', 'Sábado (10:30 - 12:30)', '2026-08-08', 10, 7),
+    ('Centro', 'KELLY', 'DESIGN - T2', 'Sábado (10:30 - 12:30)', '2026-08-15', 10, 9),
+    ('Centro', 'MENUHA', 'IDIOMAS', 'Sábado (10:30)', '2026-08-01', 8, 6),
+    ('Centro', 'MENUHA', 'IDIOMAS', 'Sábado (10:30)', '2026-08-08', 8, 7),
+    ('Centro', 'MENUHA', 'IDIOMAS', 'Sábado (10:30)', '2026-08-15', 8, 6),
+    ('Centro', 'NAYANE', 'INGLÊS - T1', 'Quarta-feira (09:00 - 11:00)', '2026-08-05', 11, 9),
+    ('Centro', 'NAYANE', 'INGLÊS - T1', 'Quarta-feira (09:00 - 11:00)', '2026-08-12', 11, 8),
+    ('Centro', 'NAYANE', 'INGLÊS - T1', 'Quarta-feira (09:00 - 11:00)', '2026-08-19', 11, 10),
+    ('Centro', 'DAVI', 'INFORMÁTICA', 'Segunda-feira (19:00 - 21:00)', '2026-08-03', 15, 12),
+    ('Centro', 'DAVI', 'INFORMÁTICA', 'Segunda-feira (19:00 - 21:00)', '2026-08-10', 15, 11),
+    ('Centro', 'DAVI', 'INFORMÁTICA', 'Segunda-feira (19:00 - 21:00)', '2026-08-17', 15, 13),
+    ('Centro', 'TULIO', 'INFORMÁTICA - T1', 'Sábado (08:30 - 10:30)', '2026-08-01', 16, 13),
+    ('Centro', 'TULIO', 'INFORMÁTICA - T1', 'Sábado (08:30 - 10:30)', '2026-08-08', 16, 12),
+    ('Centro', 'TULIO', 'INFORMÁTICA - T1', 'Sábado (08:30 - 10:30)', '2026-08-15', 16, 14),
+    
+    # Norte (Saul)
+    ('Norte (Saul)', 'ALINE', 'CABELEREIRO', 'SEGUNDA-FEIRA 14:00 - 16:00', '2026-08-03', 9, 7),
+    ('Norte (Saul)', 'ALINE', 'CABELEREIRO', 'SEGUNDA-FEIRA 14:00 - 16:00', '2026-08-10', 9, 8),
+    ('Norte (Saul)', 'ALINE', 'CABELEREIRO', 'SEGUNDA-FEIRA 14:00 - 16:00', '2026-08-17', 9, 7),
+    ('Norte (Saul)', 'ALINE', 'CABELEREIRO', 'SEGUNDA-FEIRA 19:00 - 21:00', '2026-08-03', 11, 9),
+    ('Norte (Saul)', 'ALINE', 'CABELEREIRO', 'SEGUNDA-FEIRA 19:00 - 21:00', '2026-08-10', 11, 7),
+    ('Norte (Saul)', 'ALINE', 'CABELEREIRO', 'SEGUNDA-FEIRA 19:00 - 21:00', '2026-08-17', 11, 7),
+    ('Norte (Saul)', 'SAMUEL', 'ROBÓTICA', 'TERÇA-FEIRA 19:00-21:00', '2026-08-04', 10, 8),
+    ('Norte (Saul)', 'SAMUEL', 'ROBÓTICA', 'TERÇA-FEIRA 19:00-21:00', '2026-08-11', 10, 9),
+    ('Norte (Saul)', 'SAMUEL', 'ROBÓTICA', 'TERÇA-FEIRA 19:00-21:00', '2026-08-18', 10, 7),
+    ('Norte (Saul)', 'SAMUEL', 'ROBÓTICA', 'QUINTA-FEIRA 19:00-21:00', '2026-08-06', 12, 10),
+    ('Norte (Saul)', 'SAMUEL', 'ROBÓTICA', 'QUINTA-FEIRA 19:00-21:00', '2026-08-13', 12, 11),
+    ('Norte (Saul)', 'SAMUEL', 'ROBÓTICA', 'QUINTA-FEIRA 19:00-21:00', '2026-08-20', 12, 9),
+    ('Norte (Saul)', 'BRUNO', 'INGLÊS', 'QUARTA-FEIRA  19:00 -21:00', '2026-08-05', 14, 11),
+    ('Norte (Saul)', 'BRUNO', 'INGLÊS', 'QUARTA-FEIRA  19:00 -21:00', '2026-08-12', 14, 10),
+    ('Norte (Saul)', 'BRUNO', 'INGLÊS', 'QUARTA-FEIRA  19:00 -21:00', '2026-08-19', 14, 12),
+    ('Norte (Saul)', 'JURANDIR', 'INFORMÁTICA', 'SEGUNDA-FEIRA 16:00-18:00', '2026-08-03', 15, 12),
+    ('Norte (Saul)', 'JURANDIR', 'INFORMÁTICA', 'SEGUNDA-FEIRA 16:00-18:00', '2026-08-10', 15, 11),
+    ('Norte (Saul)', 'JURANDIR', 'INFORMÁTICA', 'SEGUNDA-FEIRA 16:00-18:00', '2026-08-17', 15, 13),
+    ('Norte (Saul)', 'JURANDIR', 'INFORMÁTICA', 'QUINTA- FEIRA 16:00-18:00', '2026-08-06', 16, 13),
+    ('Norte (Saul)', 'JURANDIR', 'INFORMÁTICA', 'QUINTA- FEIRA 16:00-18:00', '2026-08-13', 16, 12),
+    ('Norte (Saul)', 'JURANDIR', 'INFORMÁTICA', 'QUINTA- FEIRA 16:00-18:00', '2026-08-20', 16, 14),
+    ('Norte (Saul)', 'CAIO', 'INFORMÁTICA', 'QUARTA-FEIRA 19:00-21:00', '2026-08-05', 18, 15),
+    ('Norte (Saul)', 'CAIO', 'INFORMÁTICA', 'QUARTA-FEIRA 19:00-21:00', '2026-08-12', 18, 14),
+    ('Norte (Saul)', 'CAIO', 'INFORMÁTICA', 'QUARTA-FEIRA 19:00-21:00', '2026-08-19', 18, 16),
+    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 08:30-10:30', '2026-08-01', 20, 17),
+    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 08:30-10:30', '2026-08-08', 20, 16),
+    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 08:30-10:30', '2026-08-15', 20, 18),
+    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 10:30-12:30', '2026-08-01', 19, 15),
+    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 10:30-12:30', '2026-08-08', 19, 14),
+    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 10:30-12:30', '2026-08-15', 19, 16),
+    ('Norte (Saul)', 'GABRIEL', 'DESIGN', 'SÁBADO 08:30 - 10:30 TURMA 1', '2026-08-01', 15, 12),
+    ('Norte (Saul)', 'GABRIEL', 'DESIGN', 'SÁBADO 08:30 - 10:30 TURMA 1', '2026-08-08', 15, 11),
+    ('Norte (Saul)', 'GABRIEL', 'DESIGN', 'SÁBADO 08:30 - 10:30 TURMA 1', '2026-08-15', 15, 13),
+    ('Norte (Saul)', 'MENUHA', 'INGLÊS', 'SEGUNDA-FEIRA 19:00 -21:00', '2026-08-03', 10, 8),
+    ('Norte (Saul)', 'MENUHA', 'INGLÊS', 'SEGUNDA-FEIRA 19:00 -21:00', '2026-08-10', 10, 7),
+    ('Norte (Saul)', 'MENUHA', 'INGLÊS', 'SEGUNDA-FEIRA 19:00 -21:00', '2026-08-17', 10, 9),
+    ('Norte (Saul)', 'KELLY', 'BELEZA', 'SEGUNDA-FEIRA 19:00-21:00', '2026-08-03', 14, 11),
+    ('Norte (Saul)', 'KELLY', 'BELEZA', 'SEGUNDA-FEIRA 19:00-21:00', '2026-08-10', 14, 10),
+    ('Norte (Saul)', 'KELLY', 'BELEZA', 'SEGUNDA-FEIRA 19:00-21:00', '2026-08-17', 14, 12),
+    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 14:00 - 16:00', '2026-08-04', 12, 10),
+    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 14:00 - 16:00', '2026-08-11', 12, 9),
+    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 14:00 - 16:00', '2026-08-18', 12, 11),
+    ('Norte (Saul)', 'FULVIO', 'IDIOMAS', 'TERÇA-FEIRA 19:00 - 21:00', '2026-08-04', 16, 13),
+    ('Norte (Saul)', 'FULVIO', 'IDIOMAS', 'TERÇA-FEIRA 19:00 - 21:00', '2026-08-11', 16, 12),
+    ('Norte (Saul)', 'FULVIO', 'IDIOMAS', 'TERÇA-FEIRA 19:00 - 21:00', '2026-08-18', 16, 14),
+    ('Norte (Saul)', 'VICTÓRIA', 'GESTÃO', 'QUINTA-FEIRA 19:00-21:00', '2026-08-06', 15, 12),
+    ('Norte (Saul)', 'VICTÓRIA', 'GESTÃO', 'QUINTA-FEIRA 19:00-21:00', '2026-08-13', 15, 11),
+    ('Norte (Saul)', 'VICTÓRIA', 'GESTÃO', 'QUINTA-FEIRA 19:00-21:00', '2026-08-20', 15, 13),
 ]
 
 # ---------------------------------------------------------
-# 1. BANCO DE DADOS EM CACHE (MUITO MAIS RÁPIDO)
+# 1. BANCO DE DADOS EM CACHE COM CARGA AUTOMÁTICA DE AGOSTO
 # ---------------------------------------------------------
 @st.cache_resource
 def iniciar_banco_de_dados():
     conn = sqlite3.connect("jumper_presenca.db", check_same_thread=False)
     cursor = conn.cursor()
     
-    # Verifica estrutura
     cursor.execute("PRAGMA table_info(turmas)")
     colunas_turmas = [row[1] for row in cursor.fetchall()]
 
     if colunas_turmas and "unidade" not in colunas_turmas:
         cursor.execute("DROP TABLE IF EXISTS turmas")
+        cursor.execute("DROP TABLE IF EXISTS presencas")
         conn.commit()
 
     cursor.execute("""
@@ -222,14 +269,29 @@ def iniciar_banco_de_dados():
     """)
     conn.commit()
 
-    # Popular se a Unidade Norte não existir
-    cursor.execute("SELECT COUNT(*) FROM turmas WHERE unidade = 'Norte (Saul)'")
+    # Se a tabela de turmas estiver vazia, popula
+    cursor.execute("SELECT COUNT(*) FROM turmas")
     if cursor.fetchone()[0] == 0:
-        cursor.execute("DELETE FROM turmas")
-        cursor.executemany(
-            "INSERT INTO turmas (unidade, professor, nome_turma, horario) VALUES (?, ?, ?, ?)",
-            TURMAS_TODAS_UNIDADES,
-        )
+        turmas_unicas = set((item[0], item[1], item[2], item[3]) for item in DADOS_AGOSTO_INICIAL)
+        for unidade, prof, nome_turma, horario in turmas_unicas:
+            cursor.execute(
+                "INSERT INTO turmas (unidade, professor, nome_turma, horario) VALUES (?, ?, ?, ?)",
+                (unidade, prof, nome_turma, horario)
+            )
+        conn.commit()
+        
+        for unidade, prof, nome_turma, horario, data_aula, qtd_alunos, qtd_presentes in DADOS_AGOSTO_INICIAL:
+            cursor.execute(
+                "SELECT id FROM turmas WHERE unidade = ? AND professor = ? AND nome_turma = ? AND horario = ?",
+                (unidade, prof, nome_turma, horario)
+            )
+            res = cursor.fetchone()
+            if res:
+                t_id = res[0]
+                cursor.execute(
+                    "INSERT INTO presencas (turma_id, data_aula, qtd_alunos, qtd_presentes) VALUES (?, ?, ?, ?)",
+                    (t_id, data_aula, qtd_alunos, qtd_presentes)
+                )
         conn.commit()
         
     return conn
@@ -238,11 +300,27 @@ CONN = iniciar_banco_de_dados()
 CURSOR = CONN.cursor()
 
 def resetar_turmas_base():
+    CURSOR.execute("DELETE FROM presencas")
     CURSOR.execute("DELETE FROM turmas")
-    CURSOR.executemany(
-        "INSERT INTO turmas (unidade, professor, nome_turma, horario) VALUES (?, ?, ?, ?)",
-        TURMAS_TODAS_UNIDADES,
-    )
+    turmas_unicas = set((item[0], item[1], item[2], item[3]) for item in DADOS_AGOSTO_INICIAL)
+    for unidade, prof, nome_turma, horario in turmas_unicas:
+        CURSOR.execute(
+            "INSERT INTO turmas (unidade, professor, nome_turma, horario) VALUES (?, ?, ?, ?)",
+            (unidade, prof, nome_turma, horario)
+        )
+    CONN.commit()
+    for unidade, prof, nome_turma, horario, data_aula, qtd_alunos, qtd_presentes in DADOS_AGOSTO_INICIAL:
+        CURSOR.execute(
+            "SELECT id FROM turmas WHERE unidade = ? AND professor = ? AND nome_turma = ? AND horario = ?",
+            (unidade, prof, nome_turma, horario)
+        )
+        res = CURSOR.fetchone()
+        if res:
+            t_id = res[0]
+            CURSOR.execute(
+                "INSERT INTO presencas (turma_id, data_aula, qtd_alunos, qtd_presentes) VALUES (?, ?, ?, ?)",
+                (t_id, data_aula, qtd_alunos, qtd_presentes)
+            )
     CONN.commit()
 
 # ---------------------------------------------------------
@@ -371,12 +449,13 @@ elif aba_ativa == "🗑️ Corrigir":
             st.rerun()
 
 # ---------------------------------------------------------
-# MÓDULO 3: DASHBOARD DA GESTÃO
+# MÓDULO 3: DASHBOARD DA GESTÃO (Com formato de mês MM/AAAA)
 # ---------------------------------------------------------
 elif aba_ativa == "📊 Dashboard":
     query = """
         SELECT p.id, t.professor, t.nome_turma, strftime('%d/%m/%Y', p.data_aula) as data_aula_br, p.data_aula, 
-               p.qtd_alunos, p.qtd_presentes, (p.qtd_alunos - p.qtd_presentes) as qtd_faltas, strftime('%Y-%m', p.data_aula) as mes_ano
+               p.qtd_alunos, p.qtd_presentes, (p.qtd_alunos - p.qtd_presentes) as qtd_faltas, 
+               strftime('%m/%Y', p.data_aula) as mes_ano
         FROM presencas p JOIN turmas t ON p.turma_id = t.id
         WHERE t.unidade = ? ORDER BY p.data_aula DESC
     """
@@ -488,8 +567,8 @@ elif aba_ativa == "⚙️ Gerenciar":
 
     st.markdown("---")
     with st.expander("🛠️ Ferramentas de Manutenção"):
-        st.caption("Restaura a lista inicial de turmas das duas unidades.")
-        if st.button("🔄 Resetar Tabela para Turmas Iniciais"):
+        st.caption("Restaura a lista inicial de turmas e dados de Agosto.")
+        if st.button("🔄 Resetar Banco e Recarregar Dados de Agosto"):
             resetar_turmas_base()
-            st.success("Tabela restaurada!")
+            st.success("Banco de dados recarregado com sucesso!")
             st.rerun()
