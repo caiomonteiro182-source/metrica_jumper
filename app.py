@@ -123,116 +123,129 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# DADOS PRÉ-CARREGADOS DE AGOSTO (CENTRO E NORTE)
+# DADOS COMPLETOS EXTRAÍDOS DOS ARQUIVOS DE AGOSTO
 # ---------------------------------------------------------
-DADOS_AGOSTO_INICIAL = [
+DADOS_AGOSTO_COMPLETO = [
     # Centro
     ('Centro', 'ALINE', 'CABELEIREIRO', 'QUINTA 19:00 - 21:00', '2026-08-06', 7, 6),
     ('Centro', 'ALINE', 'CABELEIREIRO', 'QUINTA 19:00 - 21:00', '2026-08-13', 7, 5),
     ('Centro', 'ALINE', 'CABELEIREIRO', 'QUINTA 19:00 - 21:00', '2026-08-20', 4, 2),
-    ('Centro', 'CAIO', 'INFORMÁTICA - T1', 'Sábado (08:30 às 10:30)', '2026-08-01', 20, 16),
-    ('Centro', 'CAIO', 'INFORMÁTICA - T1', 'Sábado (08:30 às 10:30)', '2026-08-08', 20, 15),
-    ('Centro', 'CAIO', 'INFORMÁTICA - T1', 'Sábado (08:30 às 10:30)', '2026-08-15', 20, 18),
-    ('Centro', 'CAIO', 'INFORMÁTICA - T1', 'Sábado (08:30 às 10:30)', '2026-08-22', 20, 16),
-    ('Centro', 'CAIO', 'INFORMÁTICA - T2', 'Sábado (10:30 às 12:30)', '2026-08-01', 18, 14),
-    ('Centro', 'CAIO', 'INFORMÁTICA - T2', 'Sábado (10:30 às 12:30)', '2026-08-08', 18, 12),
-    ('Centro', 'CAIO', 'INFORMÁTICA - T2', 'Sábado (10:30 às 12:30)', '2026-08-15', 18, 15),
-    ('Centro', 'CAIO', 'INFORMÁTICA - T2', 'Sábado (10:30 às 12:30)', '2026-08-22', 18, 14),
-    ('Centro', 'CAIO', 'INFORMÁTICA - T3', 'Terça-feira (19:00 às 21:00)', '2026-08-04', 15, 11),
-    ('Centro', 'CAIO', 'INFORMÁTICA - T3', 'Terça-feira (19:00 às 21:00)', '2026-08-11', 15, 10),
-    ('Centro', 'CAIO', 'INFORMÁTICA - T3', 'Terça-feira (19:00 às 21:00)', '2026-08-18', 15, 12),
-    ('Centro', 'HELLEN', 'INGLÊS', 'Quarta-feira (18:30 - 20:30)', '2026-08-05', 12, 10),
-    ('Centro', 'HELLEN', 'INGLÊS', 'Quarta-feira (18:30 - 20:30)', '2026-08-12', 12, 9),
-    ('Centro', 'HELLEN', 'INGLÊS', 'Quarta-feira (18:30 - 20:30)', '2026-08-19', 12, 11),
-    ('Centro', 'SAMUEL', 'ROBÓTICA', 'Sábado (08:30)', '2026-08-01', 10, 8),
-    ('Centro', 'SAMUEL', 'ROBÓTICA', 'Sábado (08:30)', '2026-08-08', 10, 7),
-    ('Centro', 'SAMUEL', 'ROBÓTICA', 'Sábado (08:30)', '2026-08-15', 10, 9),
-    ('Centro', 'SAMUEL', 'ROBÓTICA', 'Sábado (08:30)', '2026-08-22', 10, 8),
-    ('Centro', 'JULIA', 'ADMINISTRAÇÃO', 'Sábado (10:30 às 12:30)', '2026-08-01', 14, 11),
-    ('Centro', 'JULIA', 'ADMINISTRAÇÃO', 'Sábado (10:30 às 12:30)', '2026-08-08', 14, 10),
-    ('Centro', 'JULIA', 'ADMINISTRAÇÃO', 'Sábado (10:30 às 12:30)', '2026-08-15', 14, 12),
-    ('Centro', 'JULIA', 'ADMINISTRAÇÃO', 'Sábado (10:30 às 12:30)', '2026-08-22', 14, 11),
-    ('Centro', 'JURANDIR', 'INFORMÁTICA - T1', 'Terça-feira (14:00 às 16:00)', '2026-08-04', 16, 13),
-    ('Centro', 'JURANDIR', 'INFORMÁTICA - T1', 'Terça-feira (14:00 às 16:00)', '2026-08-11', 16, 12),
-    ('Centro', 'JURANDIR', 'INFORMÁTICA - T1', 'Terça-feira (14:00 às 16:00)', '2026-08-18', 16, 14),
-    ('Centro', 'JURANDIR', 'INFORMÁTICA - T2', 'Terça-feira (16:00 às 18:00)', '2026-08-04', 15, 11),
-    ('Centro', 'JURANDIR', 'INFORMÁTICA - T2', 'Terça-feira (16:00 às 18:00)', '2026-08-11', 15, 10),
-    ('Centro', 'JURANDIR', 'INFORMÁTICA - T2', 'Terça-feira (16:00 às 18:00)', '2026-08-18', 15, 12),
-    ('Centro', 'JURANDIR', 'INFORMÁTICA - T3', 'Quarta-feira (14:00 às 16:00)', '2026-08-05', 14, 10),
-    ('Centro', 'JURANDIR', 'INFORMÁTICA - T3', 'Quarta-feira (14:00 às 16:00)', '2026-08-12', 14, 11),
-    ('Centro', 'JURANDIR', 'INFORMÁTICA - T3', 'Quarta-feira (14:00 às 16:00)', '2026-08-19', 14, 9),
-    ('Centro', 'KELLY', 'DESIGN - T1', 'Sábado (08:30 - 10:30)', '2026-08-01', 12, 10),
-    ('Centro', 'KELLY', 'DESIGN - T1', 'Sábado (08:30 - 10:30)', '2026-08-08', 12, 9),
-    ('Centro', 'KELLY', 'DESIGN - T1', 'Sábado (08:30 - 10:30)', '2026-08-15', 12, 11),
-    ('Centro', 'KELLY', 'DESIGN - T2', 'Sábado (10:30 - 12:30)', '2026-08-01', 10, 8),
-    ('Centro', 'KELLY', 'DESIGN - T2', 'Sábado (10:30 - 12:30)', '2026-08-08', 10, 7),
-    ('Centro', 'KELLY', 'DESIGN - T2', 'Sábado (10:30 - 12:30)', '2026-08-15', 10, 9),
-    ('Centro', 'MENUHA', 'IDIOMAS', 'Sábado (10:30)', '2026-08-01', 8, 6),
-    ('Centro', 'MENUHA', 'IDIOMAS', 'Sábado (10:30)', '2026-08-08', 8, 7),
-    ('Centro', 'MENUHA', 'IDIOMAS', 'Sábado (10:30)', '2026-08-15', 8, 6),
-    ('Centro', 'NAYANE', 'INGLÊS - T1', 'Quarta-feira (09:00 - 11:00)', '2026-08-05', 11, 9),
-    ('Centro', 'NAYANE', 'INGLÊS - T1', 'Quarta-feira (09:00 - 11:00)', '2026-08-12', 11, 8),
-    ('Centro', 'NAYANE', 'INGLÊS - T1', 'Quarta-feira (09:00 - 11:00)', '2026-08-19', 11, 10),
-    ('Centro', 'DAVI', 'INFORMÁTICA', 'Segunda-feira (19:00 - 21:00)', '2026-08-03', 15, 12),
-    ('Centro', 'DAVI', 'INFORMÁTICA', 'Segunda-feira (19:00 - 21:00)', '2026-08-10', 15, 11),
-    ('Centro', 'DAVI', 'INFORMÁTICA', 'Segunda-feira (19:00 - 21:00)', '2026-08-17', 15, 13),
-    ('Centro', 'TULIO', 'INFORMÁTICA - T1', 'Sábado (08:30 - 10:30)', '2026-08-01', 16, 13),
-    ('Centro', 'TULIO', 'INFORMÁTICA - T1', 'Sábado (08:30 - 10:30)', '2026-08-08', 16, 12),
-    ('Centro', 'TULIO', 'INFORMÁTICA - T1', 'Sábado (08:30 - 10:30)', '2026-08-15', 16, 14),
-    
+    ('Centro', 'CAIO', 'INFORMÁTICA', 'SÁBADO 08:30 ÀS 10:30', '2026-08-15', 75, 9),
+    ('Centro', 'SAMUEL', 'ROBÓTICA KIDS', 'SÁBADO 08:30', '2026-08-01', 8, 7),
+    ('Centro', 'SAMUEL', 'ROBÓTICA KIDS', 'SÁBADO 08:30', '2026-08-08', 8, 7),
+    ('Centro', 'SAMUEL', 'ROBÓTICA KIDS', 'SÁBADO 08:30', '2026-08-15', 8, 8),
+    ('Centro', 'JULIA', 'INGLÊS KIDS', 'SÁBADO 10:30 AS 12:30', '2026-08-01', 8, 7),
+    ('Centro', 'JULIA', 'INGLÊS KIDS', 'SÁBADO 10:30 AS 12:30', '2026-08-08', 8, 7),
+    ('Centro', 'JULIA', 'INGLÊS KIDS', 'SÁBADO 10:30 AS 12:30', '2026-08-15', 8, 8),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA', 'TERÇA-FEIRA 14:00 ÀS 16:00', '2026-08-04', 10, 9),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA', 'TERÇA-FEIRA 14:00 ÀS 16:00', '2026-08-11', 9, 6),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA', 'TERÇA-FEIRA 14:00 ÀS 16:00', '2026-08-18', 8, 8),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA', 'TERÇA-FEIRA 14:00 ÀS 16:00', '2026-08-04', 7, 4),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA', 'TERÇA-FEIRA 14:00 ÀS 16:00', '2026-08-11', 7, 6),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA', 'TERÇA-FEIRA 14:00 ÀS 16:00', '2026-08-18', 7, 5),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA', 'QUARTA-FEIRA 14:00 ÀS 16:00', '2026-08-05', 9, 9),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA', 'QUARTA-FEIRA 14:00 ÀS 16:00', '2026-08-12', 9, 8),
+    ('Centro', 'JURANDIR', 'INFORMÁTICA', 'QUARTA-FEIRA 14:00 ÀS 16:00', '2026-08-19', 10, 10),
+    ('Centro', 'KELLY', 'MANICURE', 'SÁBADO 08:30 - 10:30', '2026-08-01', 8, 8),
+    ('Centro', 'KELLY', 'MANICURE', 'SÁBADO 08:30 - 10:30', '2026-08-08', 9, 9),
+    ('Centro', 'KELLY', 'MANICURE', 'SÁBADO 08:30 - 10:30', '2026-08-15', 8, 6),
+    ('Centro', 'KELLY', 'MANICURE', 'SÁBADO 08:30 - 10:30', '2026-08-15', 11, 9),
+    ('Centro', 'KELLY', 'MANICURE', 'SÁBADO 10:30 - 12:30', '2026-08-15', 64, 11),
+    ('Centro', 'MENUHA', 'INGLÊS KIDS', 'SÁBADO 10:30', '2026-08-02', 10, 8),
+    ('Centro', 'MENUHA', 'INGLÊS KIDS', 'SÁBADO 10:30', '2026-08-09', 4, 1),
+    ('Centro', 'MENUHA', 'INGLÊS KIDS', 'SÁBADO 10:30', '2026-08-16', 4, 4),
+    ('Centro', 'MENUHA', 'INGLÊS KIDS', 'SÁBADO 10:30', '2026-08-23', 3, 1),
+    ('Centro', 'MENUHA', 'INGLÊS KIDS', 'SÁBADO 10:30', '2026-08-30', 3, 2),
+    ('Centro', 'NAYANE', 'INGLÊS', 'QUARTA FEIRA 09:00-11:00', '2026-08-12', 4, 3),
+    ('Centro', 'NAYANE', 'INGLÊS', 'QUARTA FEIRA 09:00-11:00', '2026-08-19', 4, 4),
+    ('Centro', 'NAYANE', 'INGLÊS', 'QUARTA FEIRA 09:00-11:00', '2026-08-05', 10, 9),
+    ('Centro', 'NAYANE', 'INGLÊS', 'QUARTA FEIRA 09:00-11:00', '2026-08-12', 11, 11),
+    ('Centro', 'NAYANE', 'INGLÊS', 'QUARTA FEIRA 09:00-11:00', '2026-08-19', 11, 10),
+    ('Centro', 'NAYANE', 'INGLÊS', 'SÁBADO 13:00-15:00', '2026-08-15', 68, 6),
+    ('Centro', 'DAVI', 'BARBEIRO', 'SEGUNDA 19:00 - 21:00', '2026-08-03', 7, 7),
+    ('Centro', 'DAVI', 'BARBEIRO', 'SEGUNDA 19:00 - 21:00', '2026-08-10', 7, 5),
+    ('Centro', 'DAVI', 'BARBEIRO', 'SEGUNDA 19:00 - 21:00', '2026-08-17', 7, 6),
+    ('Centro', 'TULIO', 'INGLÊS', 'SÁBADO 08:30 - 10:30', '2026-08-01', 25, 22),
+    ('Centro', 'TULIO', 'INGLÊS', 'SÁBADO 08:30 - 10:30', '2026-08-15', 23, 20),
+    ('Centro', 'TULIO', 'INGLÊS', 'SÁBADO 08:30 - 10:30', '2026-08-05', 5, 5),
+    ('Centro', 'TULIO', 'INGLÊS', 'SÁBADO 08:30 - 10:30', '2026-08-12', 6, 6),
+    ('Centro', 'TULIO', 'INGLÊS', 'SÁBADO 08:30 - 10:30', '2026-08-19', 6, 6),
+    ('Centro', 'TULIO', 'INGLÊS', 'SÁBADO 10:30 - 12:30', '2026-08-01', 22, 19),
+    ('Centro', 'TULIO', 'INGLÊS', 'SÁBADO 10:30 - 12:30', '2026-08-08', 16, 13),
+    ('Centro', 'TULIO', 'INGLÊS', 'SÁBADO 10:30 - 12:30', '2026-08-15', 20, 17),
+    ('Centro', 'VINICIUS', 'EMPREENDEDORISMO', 'SÁBADO 10:30', '2026-08-01', 6, 6),
+    ('Centro', 'VINICIUS', 'EMPREENDEDORISMO', 'SÁBADO 10:30', '2026-08-08', 16, 15),
+    ('Centro', 'VINICIUS', 'EMPREENDEDORISMO', 'SÁBADO 10:30', '2026-08-15', 18, 14),
+    ('Centro', 'VINICIUS', 'EMPREENDEDORISMO', 'QUINTA-FEIRA  9:00', '2026-08-06', 12, 9),
+    ('Centro', 'VINICIUS', 'EMPREENDEDORISMO', 'QUINTA-FEIRA  9:00', '2026-08-13', 12, 9),
+    ('Centro', 'VINICIUS', 'EMPREENDEDORISMO', 'QUINTA-FEIRA  9:00', '2026-08-20', 10, 10),
+
     # Norte (Saul)
     ('Norte (Saul)', 'ALINE', 'CABELEREIRO', 'SEGUNDA-FEIRA 14:00 - 16:00', '2026-08-03', 9, 7),
     ('Norte (Saul)', 'ALINE', 'CABELEREIRO', 'SEGUNDA-FEIRA 14:00 - 16:00', '2026-08-10', 9, 8),
     ('Norte (Saul)', 'ALINE', 'CABELEREIRO', 'SEGUNDA-FEIRA 14:00 - 16:00', '2026-08-17', 9, 7),
-    ('Norte (Saul)', 'ALINE', 'CABELEREIRO', 'SEGUNDA-FEIRA 19:00 - 21:00', '2026-08-03', 11, 9),
-    ('Norte (Saul)', 'ALINE', 'CABELEREIRO', 'SEGUNDA-FEIRA 19:00 - 21:00', '2026-08-10', 11, 7),
-    ('Norte (Saul)', 'ALINE', 'CABELEREIRO', 'SEGUNDA-FEIRA 19:00 - 21:00', '2026-08-17', 11, 7),
-    ('Norte (Saul)', 'SAMUEL', 'ROBÓTICA', 'TERÇA-FEIRA 19:00-21:00', '2026-08-04', 10, 8),
-    ('Norte (Saul)', 'SAMUEL', 'ROBÓTICA', 'TERÇA-FEIRA 19:00-21:00', '2026-08-11', 10, 9),
-    ('Norte (Saul)', 'SAMUEL', 'ROBÓTICA', 'TERÇA-FEIRA 19:00-21:00', '2026-08-18', 10, 7),
-    ('Norte (Saul)', 'SAMUEL', 'ROBÓTICA', 'QUINTA-FEIRA 19:00-21:00', '2026-08-06', 12, 10),
-    ('Norte (Saul)', 'SAMUEL', 'ROBÓTICA', 'QUINTA-FEIRA 19:00-21:00', '2026-08-13', 12, 11),
-    ('Norte (Saul)', 'SAMUEL', 'ROBÓTICA', 'QUINTA-FEIRA 19:00-21:00', '2026-08-20', 12, 9),
-    ('Norte (Saul)', 'BRUNO', 'INGLÊS', 'QUARTA-FEIRA  19:00 -21:00', '2026-08-05', 14, 11),
-    ('Norte (Saul)', 'BRUNO', 'INGLÊS', 'QUARTA-FEIRA  19:00 -21:00', '2026-08-12', 14, 10),
-    ('Norte (Saul)', 'BRUNO', 'INGLÊS', 'QUARTA-FEIRA  19:00 -21:00', '2026-08-19', 14, 12),
-    ('Norte (Saul)', 'JURANDIR', 'INFORMÁTICA', 'SEGUNDA-FEIRA 16:00-18:00', '2026-08-03', 15, 12),
-    ('Norte (Saul)', 'JURANDIR', 'INFORMÁTICA', 'SEGUNDA-FEIRA 16:00-18:00', '2026-08-10', 15, 11),
-    ('Norte (Saul)', 'JURANDIR', 'INFORMÁTICA', 'SEGUNDA-FEIRA 16:00-18:00', '2026-08-17', 15, 13),
-    ('Norte (Saul)', 'JURANDIR', 'INFORMÁTICA', 'QUINTA- FEIRA 16:00-18:00', '2026-08-06', 16, 13),
-    ('Norte (Saul)', 'JURANDIR', 'INFORMÁTICA', 'QUINTA- FEIRA 16:00-18:00', '2026-08-13', 16, 12),
-    ('Norte (Saul)', 'JURANDIR', 'INFORMÁTICA', 'QUINTA- FEIRA 16:00-18:00', '2026-08-20', 16, 14),
-    ('Norte (Saul)', 'CAIO', 'INFORMÁTICA', 'QUARTA-FEIRA 19:00-21:00', '2026-08-05', 18, 15),
-    ('Norte (Saul)', 'CAIO', 'INFORMÁTICA', 'QUARTA-FEIRA 19:00-21:00', '2026-08-12', 18, 14),
-    ('Norte (Saul)', 'CAIO', 'INFORMÁTICA', 'QUARTA-FEIRA 19:00-21:00', '2026-08-19', 18, 16),
-    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 08:30-10:30', '2026-08-01', 20, 17),
-    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 08:30-10:30', '2026-08-08', 20, 16),
-    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 08:30-10:30', '2026-08-15', 20, 18),
-    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 10:30-12:30', '2026-08-01', 19, 15),
-    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 10:30-12:30', '2026-08-08', 19, 14),
-    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 10:30-12:30', '2026-08-15', 19, 16),
-    ('Norte (Saul)', 'GABRIEL', 'DESIGN', 'SÁBADO 08:30 - 10:30 TURMA 1', '2026-08-01', 15, 12),
-    ('Norte (Saul)', 'GABRIEL', 'DESIGN', 'SÁBADO 08:30 - 10:30 TURMA 1', '2026-08-08', 15, 11),
-    ('Norte (Saul)', 'GABRIEL', 'DESIGN', 'SÁBADO 08:30 - 10:30 TURMA 1', '2026-08-15', 15, 13),
-    ('Norte (Saul)', 'MENUHA', 'INGLÊS', 'SEGUNDA-FEIRA 19:00 -21:00', '2026-08-03', 10, 8),
-    ('Norte (Saul)', 'MENUHA', 'INGLÊS', 'SEGUNDA-FEIRA 19:00 -21:00', '2026-08-10', 10, 7),
-    ('Norte (Saul)', 'MENUHA', 'INGLÊS', 'SEGUNDA-FEIRA 19:00 -21:00', '2026-08-17', 10, 9),
-    ('Norte (Saul)', 'KELLY', 'BELEZA', 'SEGUNDA-FEIRA 19:00-21:00', '2026-08-03', 14, 11),
-    ('Norte (Saul)', 'KELLY', 'BELEZA', 'SEGUNDA-FEIRA 19:00-21:00', '2026-08-10', 14, 10),
-    ('Norte (Saul)', 'KELLY', 'BELEZA', 'SEGUNDA-FEIRA 19:00-21:00', '2026-08-17', 14, 12),
-    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 14:00 - 16:00', '2026-08-04', 12, 10),
-    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 14:00 - 16:00', '2026-08-11', 12, 9),
-    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 14:00 - 16:00', '2026-08-18', 12, 11),
-    ('Norte (Saul)', 'FULVIO', 'IDIOMAS', 'TERÇA-FEIRA 19:00 - 21:00', '2026-08-04', 16, 13),
-    ('Norte (Saul)', 'FULVIO', 'IDIOMAS', 'TERÇA-FEIRA 19:00 - 21:00', '2026-08-11', 16, 12),
-    ('Norte (Saul)', 'FULVIO', 'IDIOMAS', 'TERÇA-FEIRA 19:00 - 21:00', '2026-08-18', 16, 14),
-    ('Norte (Saul)', 'VICTÓRIA', 'GESTÃO', 'QUINTA-FEIRA 19:00-21:00', '2026-08-06', 15, 12),
-    ('Norte (Saul)', 'VICTÓRIA', 'GESTÃO', 'QUINTA-FEIRA 19:00-21:00', '2026-08-13', 15, 11),
-    ('Norte (Saul)', 'VICTÓRIA', 'GESTÃO', 'QUINTA-FEIRA 19:00-21:00', '2026-08-20', 15, 13),
+    ('Norte (Saul)', 'ALINE', 'CABELEREIRO', 'SEGUNDA-FEIRA 19:00 - 21:00', '2026-08-17', 60, 7),
+    ('Norte (Saul)', 'SAMUEL', 'INFORMÁTICA', 'TERÇA-FEIRA 19:00-21:00', '2026-08-11', 7, 6),
+    ('Norte (Saul)', 'SAMUEL', 'INFORMÁTICA', 'TERÇA-FEIRA 19:00-21:00', '2026-08-18', 6, 6),
+    ('Norte (Saul)', 'BRUNO', 'MAQUIAGEM', 'QUARTA-FEIRA  19:00 -21:00', '2026-08-19', 21, 7),
+    ('Norte (Saul)', 'JURANDIR', 'JURANDIR', 'SEGUNDA-FEIRA 16:00-18:00', '2026-08-03', 9, 8),
+    ('Norte (Saul)', 'JURANDIR', 'JURANDIR', 'SEGUNDA-FEIRA 16:00-18:00', '2026-08-10', 9, 8),
+    ('Norte (Saul)', 'JURANDIR', 'JURANDIR', 'SEGUNDA-FEIRA 16:00-18:00', '2026-08-17', 9, 8),
+    ('Norte (Saul)', 'JURANDIR', 'JURANDIR', 'SEGUNDA-FEIRA 16:00-18:00', '2026-08-06', 8, 6),
+    ('Norte (Saul)', 'JURANDIR', 'JURANDIR', 'SEGUNDA-FEIRA 16:00-18:00', '2026-08-13', 9, 6),
+    ('Norte (Saul)', 'JURANDIR', 'JURANDIR', 'SEGUNDA-FEIRA 16:00-18:00', '2026-08-20', 9, 5),
+    ('Norte (Saul)', 'JURANDIR', 'JURANDIR', 'QUINTA- FEIRA 14:00 -16:00', '2026-08-20', 83, 9),
+    ('Norte (Saul)', 'CAIO', 'INFORMÁTICA', 'QUARTA-FEIRA 19:00-21:00', '2026-08-05', 13, 11),
+    ('Norte (Saul)', 'CAIO', 'INFORMÁTICA', 'QUARTA-FEIRA 19:00-21:00', '2026-08-12', 13, 10),
+    ('Norte (Saul)', 'CAIO', 'INFORMÁTICA', 'QUARTA-FEIRA 19:00-21:00', '2026-08-19', 13, 12),
+    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 08:30-10:30', '2026-08-01', 13, 13),
+    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 08:30-10:30', '2026-08-08', 13, 6),
+    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 08:30-10:30', '2026-08-15', 13, 12),
+    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 08:30-10:30', '2026-08-22', 13, 11),
+    ('Norte (Saul)', 'LEONARDO', 'INFORMÁTICA', 'SÁBADO 10:30-12:30', '2026-08-15', 85, 10),
+    ('Norte (Saul)', 'GABRIEL', 'INGLÊS KIDS', 'SÁBADO 08:30 - 10:30 TURMA 1', '2026-08-01', 9, 7),
+    ('Norte (Saul)', 'GABRIEL', 'INGLÊS KIDS', 'SÁBADO 08:30 - 10:30 TURMA 1', '2026-08-08', 8, 4),
+    ('Norte (Saul)', 'GABRIEL', 'INGLÊS KIDS', 'SÁBADO 08:30 - 10:30 TURMA 1', '2026-08-15', 8, 8),
+    ('Norte (Saul)', 'GABRIEL', 'INGLÊS KIDS', 'SÁBADO 08:30 - 10:30 TURMA 1', '2026-08-01', 9, 6),
+    ('Norte (Saul)', 'GABRIEL', 'INGLÊS KIDS', 'SÁBADO 08:30 - 10:30 TURMA 1', '2026-08-08', 9, 7),
+    ('Norte (Saul)', 'GABRIEL', 'INGLÊS KIDS', 'SÁBADO 08:30 - 10:30 TURMA 1', '2026-08-15', 9, 9),
+    ('Norte (Saul)', 'MENUHA', 'INGLÊS KIDS', 'SEGUNDA-FEIRA 19:00 -21:00', '2026-08-03', 8, 7),
+    ('Norte (Saul)', 'MENUHA', 'INGLÊS KIDS', 'SEGUNDA-FEIRA 19:00 -21:00', '2026-08-10', 8, 4),
+    ('Norte (Saul)', 'KELLY', 'MANICURE', 'SEGUNDA-FEIRA 19:00-21:00', '2026-08-03', 11, 9),
+    ('Norte (Saul)', 'KELLY', 'MANICURE', 'SEGUNDA-FEIRA 19:00-21:00', '2026-08-10', 10, 7),
+    ('Norte (Saul)', 'KELLY', 'MANICURE', 'SEGUNDA-FEIRA 19:00-21:00', '2026-08-17', 12, 10),
+    ('Norte (Saul)', 'KELLY', 'MANICURE', 'SEGUNDA-FEIRA 19:00-21:00', '2026-08-14', 9, 7),
+    ('Norte (Saul)', 'KELLY', 'MANICURE', 'SEGUNDA-FEIRA 19:00-21:00', '2026-08-21', 9, 6),
+    ('Norte (Saul)', 'KELLY', 'MANICURE', 'TERÇA-FEIRA 19:00 - 21:00 - ALONGAMENTO', '2026-08-04', 8, 8),
+    ('Norte (Saul)', 'KELLY', 'MANICURE', 'TERÇA-FEIRA 19:00 - 21:00 - ALONGAMENTO', '2026-08-11', 6, 5),
+    ('Norte (Saul)', 'KELLY', 'MANICURE', 'TERÇA-FEIRA 19:00 - 21:00 - ALONGAMENTO', '2026-08-18', 7, 7),
+    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 14:00 - 16:00', '2026-08-04', 15, 13),
+    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 14:00 - 16:00', '2026-08-11', 15, 14),
+    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 14:00 - 16:00', '2026-08-18', 15, 13),
+    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 14:00 - 16:00', '2026-08-01', 21, 21),
+    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 14:00 - 16:00', '2026-08-08', 21, 15),
+    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 14:00 - 16:00', '2026-08-15', 22, 16),
+    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 19:00-21:00', '2026-08-04', 15, 13),
+    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 19:00-21:00', '2026-08-11', 15, 13),
+    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 19:00-21:00', '2026-08-18', 14, 13),
+    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 19:00-21:00', '2026-08-01', 14, 14),
+    ('Norte (Saul)', 'NAYANE', 'INGLÊS', 'TERÇA-FEIRA 19:00-21:00', '2026-08-15', 14, 13),
+    ('Norte (Saul)', 'FULVIO', 'MECÂNICA', 'TERÇA-FEIRA 19:00 - 21:00', '2026-08-11', 11, 7),
+    ('Norte (Saul)', 'FULVIO', 'MECÂNICA', 'TERÇA-FEIRA 19:00 - 21:00', '2026-08-18', 10, 9),
+    ('Norte (Saul)', 'FULVIO', 'MECÂNICA', 'TERÇA-FEIRA 19:00 - 21:00', '2026-08-06', 12, 6),
+    ('Norte (Saul)', 'FULVIO', 'MECÂNICA', 'TERÇA-FEIRA 19:00 - 21:00', '2026-08-13', 10, 8),
+    ('Norte (Saul)', 'FULVIO', 'MECÂNICA', 'TERÇA-FEIRA 19:00 - 21:00', '2026-08-20', 9, 7),
+    ('Norte (Saul)', 'FULVIO', 'MECÂNICA', 'SÁBADO 13:30 ÀS 15:30', '2026-08-15', 92, 12),
+    ('Norte (Saul)', 'VICTÓRIA', 'ROBÓTICA', 'QUINTA-FEIRA 19:00-21:00', '2026-08-06', 12, 5),
+    ('Norte (Saul)', 'VICTÓRIA', 'ROBÓTICA', 'QUINTA-FEIRA 19:00-21:00', '2026-08-13', 12, 10),
+    ('Norte (Saul)', 'VICTÓRIA', 'ROBÓTICA', 'QUINTA-FEIRA 19:00-21:00', '2026-08-20', 11, 7),
+    ('Norte (Saul)', 'VICTÓRIA', 'ROBÓTICA', 'QUINTA-FEIRA 19:00-21:00', '2026-08-01', 12, 9),
+    ('Norte (Saul)', 'VICTÓRIA', 'ROBÓTICA', 'QUINTA-FEIRA 19:00-21:00', '2026-08-08', 12, 9),
+    ('Norte (Saul)', 'VICTÓRIA', 'ROBÓTICA', 'QUINTA-FEIRA 19:00-21:00', '2026-08-15', 12, 9),
 ]
 
 # ---------------------------------------------------------
-# 1. BANCO DE DADOS EM CACHE COM CARGA AUTOMÁTICA DE AGOSTO
+# 1. BANCO DE DADOS EM CACHE COM CARGA DOS DADOS COMPLETOS
 # ---------------------------------------------------------
 @st.cache_resource
 def iniciar_banco_de_dados():
@@ -269,10 +282,10 @@ def iniciar_banco_de_dados():
     """)
     conn.commit()
 
-    # Se a tabela de turmas estiver vazia, popula
+    # Recarrega se a tabela estiver vazia
     cursor.execute("SELECT COUNT(*) FROM turmas")
     if cursor.fetchone()[0] == 0:
-        turmas_unicas = set((item[0], item[1], item[2], item[3]) for item in DADOS_AGOSTO_INICIAL)
+        turmas_unicas = set((item[0], item[1], item[2], item[3]) for item in DADOS_AGOSTO_COMPLETO)
         for unidade, prof, nome_turma, horario in turmas_unicas:
             cursor.execute(
                 "INSERT INTO turmas (unidade, professor, nome_turma, horario) VALUES (?, ?, ?, ?)",
@@ -280,7 +293,7 @@ def iniciar_banco_de_dados():
             )
         conn.commit()
         
-        for unidade, prof, nome_turma, horario, data_aula, qtd_alunos, qtd_presentes in DADOS_AGOSTO_INICIAL:
+        for unidade, prof, nome_turma, horario, data_aula, qtd_alunos, qtd_presentes in DADOS_AGOSTO_COMPLETO:
             cursor.execute(
                 "SELECT id FROM turmas WHERE unidade = ? AND professor = ? AND nome_turma = ? AND horario = ?",
                 (unidade, prof, nome_turma, horario)
@@ -302,14 +315,14 @@ CURSOR = CONN.cursor()
 def resetar_turmas_base():
     CURSOR.execute("DELETE FROM presencas")
     CURSOR.execute("DELETE FROM turmas")
-    turmas_unicas = set((item[0], item[1], item[2], item[3]) for item in DADOS_AGOSTO_INICIAL)
+    turmas_unicas = set((item[0], item[1], item[2], item[3]) for item in DADOS_AGOSTO_COMPLETO)
     for unidade, prof, nome_turma, horario in turmas_unicas:
         CURSOR.execute(
             "INSERT INTO turmas (unidade, professor, nome_turma, horario) VALUES (?, ?, ?, ?)",
             (unidade, prof, nome_turma, horario)
         )
     CONN.commit()
-    for unidade, prof, nome_turma, horario, data_aula, qtd_alunos, qtd_presentes in DADOS_AGOSTO_INICIAL:
+    for unidade, prof, nome_turma, horario, data_aula, qtd_alunos, qtd_presentes in DADOS_AGOSTO_COMPLETO:
         CURSOR.execute(
             "SELECT id FROM turmas WHERE unidade = ? AND professor = ? AND nome_turma = ? AND horario = ?",
             (unidade, prof, nome_turma, horario)
@@ -566,9 +579,10 @@ elif aba_ativa == "⚙️ Gerenciar":
                         st.error("Marque a caixa de confirmação.")
 
     st.markdown("---")
+    st.with_expander = st.expander("🛠️ Ferramentas de Manutenção")
     with st.expander("🛠️ Ferramentas de Manutenção"):
-        st.caption("Restaura a lista inicial de turmas e dados de Agosto.")
-        if st.button("🔄 Resetar Banco e Recarregar Dados de Agosto"):
+        st.caption("Restaura a lista inicial de turmas e dados completos de Agosto.")
+        if st.button("🔄 Resetar Banco e Recarregar Dados Completos"):
             resetar_turmas_base()
             st.success("Banco de dados recarregado com sucesso!")
             st.rerun()
